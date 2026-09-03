@@ -34,10 +34,25 @@ npm install
 npm run dev
 ```
 
-## Deploy
+## Testes
 
 ```bash
-npm run deploy
+npm run test
 ```
 
-Publica a pasta `dist/` na branch `gh-pages` via o pacote `gh-pages`.
+Testes unitários (Vitest) para as fórmulas financeiras em `src/data.ts`.
+
+## Deploy
+
+Duas opções:
+
+1. **GitHub Actions (recomendado)** — o workflow em
+   `.github/workflows/deploy.yml` já está configurado. Basta:
+   - dar push para `main`;
+   - em Settings → Pages, selecionar "GitHub Actions" como fonte;
+   - todo push em `main` publica automaticamente.
+2. **`gh-pages` manual**:
+   ```bash
+   npm run deploy
+   ```
+   (usa o pacote `gh-pages`, publica a pasta `dist` na branch `gh-pages`).

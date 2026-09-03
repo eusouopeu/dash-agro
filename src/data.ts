@@ -39,7 +39,7 @@ export interface AnnualIndicators extends AnnualFinancials {
   fcoPctReceita: number
 }
 
-export const indicadores: AnnualIndicators[] = dadosBrutos.map((d) => {
+export function computeIndicators(d: AnnualFinancials): AnnualIndicators {
   const pmeDias = (d.estoques / d.cmv) * 365
   const pmrDias = (d.contasAReceber / d.receitaLiquida) * 365
   const pmpDias = (d.fornecedores / d.cmv) * 365
@@ -55,7 +55,9 @@ export const indicadores: AnnualIndicators[] = dadosBrutos.map((d) => {
     ncgPctReceita: (ncg / d.receitaLiquida) * 100,
     fcoPctReceita: (d.fluxoCaixaOperacional / d.receitaLiquida) * 100,
   }
-})
+}
+
+export const indicadores: AnnualIndicators[] = dadosBrutos.map(computeIndicators)
 
 export const ultimoAno = indicadores[indicadores.length - 1]
 

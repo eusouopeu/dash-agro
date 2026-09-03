@@ -13,12 +13,16 @@ import {
   BarChart,
   Bar,
   CartesianGrid,
+  Label,
+  ReferenceLine,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
 } from 'recharts'
 import { indicadores, ultimoAno, fontes } from './data'
+import { ThemeToggle } from './components/ThemeToggle'
+import { ProjecaoCicloChart } from './components/ProjecaoChart'
 
 const COLORS = {
   navy: '#1f3864',
@@ -80,20 +84,23 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-100">
       <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
-            Assaí Atacadista (B3: ASAI3)
-          </p>
-          <h1 className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
-            Indicadores Operacionais — 2020 a 2024
-          </h1>
-          <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
-            Eficiência de estoque e ciclo operacional de caixa a partir de dados públicos da
-            CVM. Em {ultimoAno.ano}, o ciclo de caixa operacional foi de{' '}
-            <strong>{formatDias(ultimoAno.cicloCaixaDias)}</strong> — negativo, ou seja, a
-            empresa recebe dos clientes e vende o estoque antes de precisar pagar os
-            fornecedores, operando com capital de giro financiado por eles.
-          </p>
+        <div className="mx-auto flex max-w-6xl items-start justify-between gap-4 px-6 py-8">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+              Assaí Atacadista (B3: ASAI3)
+            </p>
+            <h1 className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
+              Indicadores Operacionais — 2020 a 2024
+            </h1>
+            <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
+              Eficiência de estoque e ciclo operacional de caixa a partir de dados públicos da
+              CVM. Em {ultimoAno.ano}, o ciclo de caixa operacional foi de{' '}
+              <strong>{formatDias(ultimoAno.cicloCaixaDias)}</strong> — negativo, ou seja, a
+              empresa recebe dos clientes e vende o estoque antes de precisar pagar os
+              fornecedores, operando com capital de giro financiado por eles.
+            </p>
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -228,10 +235,31 @@ export default function App() {
                 <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${(v / 1_000_000).toFixed(1)} bi`} />
                 <Tooltip formatter={(v: any) => formatBi(Number(v))} />
+                <ReferenceLine x={2022} stroke={COLORS.amber} strokeDasharray="4 4">
+                  <Label
+                    value="Aquisição Extra Hiper"
+                    position="insideTopLeft"
+                    fontSize={11}
+                    fill="#fff"
+                    style={{ fontWeight: 600 }}
+                  />
+                </ReferenceLine>
                 <Bar dataKey="ncg" name="NCG" fill={COLORS.navy} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </section>
+
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <h3 className="mb-1 text-sm font-bold text-slate-900 dark:text-white">
+            Projeção simples — ciclo de caixa operacional (2025–2026)
+          </h3>
+          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+            Regressão linear sobre a série {indicadores[0].ano}–{indicadores[indicadores.length - 1].ano}.
+            Não é uma previsão financeira oficial nem recomendação de investimento — apenas a
+            extrapolação estatística da tendência observada.
+          </p>
+          <ProjecaoCicloChart />
         </section>
 
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
