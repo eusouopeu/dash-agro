@@ -21,8 +21,13 @@ import {
   Legend,
 } from 'recharts'
 import { indicadores, ultimoAno, fontes } from './data'
+import { formatBi, formatDias } from './format'
 import { ThemeToggle } from './components/ThemeToggle'
+import { IndicatorCard } from './components/IndicatorCard'
 import { ProjecaoCicloChart } from './components/ProjecaoChart'
+import { CapitalSection } from './components/CapitalSection'
+import { RevenueRealSection } from './components/RevenueRealSection'
+import { BenchmarkingSection } from './components/BenchmarkingSection'
 
 const COLORS = {
   navy: '#1f3864',
@@ -30,42 +35,6 @@ const COLORS = {
   slate: '#64748b',
   amber: '#d97706',
   emerald: '#059669',
-}
-
-function formatDias(v: number) {
-  return `${v.toFixed(1)} dias`
-}
-
-function formatBi(v: number) {
-  return `R$ ${(v / 1_000_000).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bi`
-}
-
-interface CardProps {
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-  label: string
-  value: string
-  detail: string
-  accent?: string
-}
-
-function IndicatorCard({ icon: Icon, label, value, detail, accent = COLORS.indigo }: CardProps) {
-  return (
-    <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center gap-2">
-        <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ backgroundColor: `${accent}1a`, color: accent }}
-        >
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          {label}
-        </span>
-      </div>
-      <div className="text-2xl font-bold text-slate-900 dark:text-white">{value}</div>
-      <div className="text-xs text-slate-500 dark:text-slate-400">{detail}</div>
-    </div>
-  )
 }
 
 const anoAnterior = indicadores[indicadores.length - 2]
@@ -261,6 +230,12 @@ export default function App() {
           </p>
           <ProjecaoCicloChart />
         </section>
+
+        <CapitalSection />
+
+        <RevenueRealSection />
+
+        <BenchmarkingSection />
 
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">
