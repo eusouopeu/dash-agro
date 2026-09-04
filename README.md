@@ -1,31 +1,64 @@
-# Dashboard Operacional — Assaí Atacadista
+# dash-agro — Copacol vs. BRF
 
-Análise de indicadores operacionais (eficiência de estoque e ciclo de caixa
-operacional) do Assaí Atacadista (B3: ASAI3) entre 2020 e 2024, a partir de
-dados públicos.
+Comparativo de eficiência operacional, ciclo financeiro e rentabilidade entre
+**BRF S.A.** (B3: BRFS3) e a **Copacol — Cooperativa Agroindustrial Consolata**,
+a partir de demonstrações financeiras auditadas.
+
+Anos com dado real para as duas empresas: **2021–2024**. A BRF também tem 2020 e
+a Copacol também tem 2025 — mantidos nas séries históricas, fora do comparativo
+lado a lado.
+
+## Seções
+
+| Aba                   | Conteúdo                                                              |
+| --------------------- | --------------------------------------------------------------------- |
+| Panorama geral        | Cascata do ciclo financeiro, porte das empresas, séries e comparativos |
+| Tabela de indicadores | Uma tabela por exercício, com ordenação por qualquer coluna            |
+| Fontes de dados       | Todas as fontes em formato ABNT NBR 6023:2018, com links               |
+| Metodologia           | Fórmulas, premissas de cálculo e limitações do comparativo             |
+
+No desktop a navegação é uma sidebar fixa; abaixo de `lg` ela vira uma barra
+inferior só com ícones. Cada aba tem URL própria (`#panorama`, `#indicadores`,
+`#fontes`, `#metodologia`).
 
 ## Indicadores
 
-- Giro do estoque e PME (prazo médio de estocagem)
-- PMR (prazo médio de recebimento) e PMP (prazo médio de pagamento)
-- Ciclo de caixa operacional
-- Necessidade de Capital de Giro (NCG)
+Giro do Estoque · PME · PMR · PMP · Ciclo Financeiro · NCG · Giro do Ativo ·
+Margem EBITDA · ROIC · Alavancagem (Dív. Líq./EBITDA).
 
-## Fonte dos dados
+As definições exatas estão em `src/metodologia.ts` e aparecem renderizadas na
+aba Metodologia.
 
-CVM — Dados Abertos, Demonstrações Financeiras Padronizadas (DFP) de Sendas
-Distribuidora S.A. (CD_CVM 025372): https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/
+## Fontes
 
-A CVM só recebe demonstrações **individuais** (não consolidadas) dessa
-empresa em todo o período 2020–2024 — é a única base disponível, e por isso
-é a usada aqui de forma consistente nos 5 anos. Fórmulas e premissas
-completas na seção "Premissas e fontes" do próprio dashboard e em
-`src/data.ts`.
+- **BRF** — CVM Dados Abertos, DFP consolidadas, CD_CVM 016292:
+  https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/
+- **Copacol** — Relatórios financeiros anuais auditados, obtidos diretamente
+  junto à cooperativa (não publicados de forma indexável).
+
+Referências completas em `src/referencias.ts`.
+
+## Identidade visual
+
+| Papel      | Cor       |
+| ---------- | --------- |
+| Papel      | `#F5F3EE` |
+| Tinta      | `#171717` |
+| Cinza      | `#737373` |
+| Assinatura | `#087F8C` |
+| Acento     | `#E76F32` |
+
+As marcas de dado usam passos derivados dessas famílias — `#008DA0` (BRF) e
+`#D45A1E` (Copacol) — validados para contraste mínimo de 3:1 sobre o papel e
+separação sob daltonismo. As cores da marca original ficam para a interface
+(sidebar, acentos), não para os gráficos.
+
+Tipografia: **Archivo** para texto e títulos, **IBM Plex Mono** para todo número,
+rótulo e dado tabular.
 
 ## Stack
 
-React + TypeScript + Vite + Tailwind CSS + Recharts + Heroicons, fonte
-Montserrat.
+React 19 · TypeScript · Vite · Tailwind CSS v4 · Recharts · Heroicons
 
 ## Rodando localmente
 
@@ -34,10 +67,14 @@ npm install
 npm run dev
 ```
 
+Sobe em http://localhost:5175.
+
 ## Deploy
 
 ```bash
 npm run deploy
 ```
 
-Publica a pasta `dist/` na branch `gh-pages` via o pacote `gh-pages`.
+Publica `dist/` na branch `gh-pages`. O site fica em
+https://eusouopeu.github.io/dash-agro/ — o `base` do Vite precisa continuar
+batendo com o nome do repositório.

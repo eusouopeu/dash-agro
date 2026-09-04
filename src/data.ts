@@ -105,7 +105,10 @@ export interface Empresa {
   nome: string
   nomeCurto: string
   subtitulo: string
+  /** Cor da marca de dado — passo validado (contraste + daltonismo) da paleta. */
   cor: string
+  /** Fundo de tinta suave para chips e realces da empresa. */
+  corSuave: string
   bruto: AnnualFinancials[]
   indicadores: AnnualIndicators[]
 }
@@ -114,8 +117,9 @@ export const brf: Empresa = {
   id: 'brf',
   nome: 'BRF S.A.',
   nomeCurto: 'BRF',
-  subtitulo: 'B3: BRFS3',
-  cor: '#4f46e5', // indigo
+  subtitulo: 'B3: BRFS3 — companhia aberta',
+  cor: '#008DA0', // passo de dado da família verde petróleo
+  corSuave: '#E2F0F2',
   bruto: brfBruto,
   indicadores: brfBruto.map(computarIndicadores),
 }
@@ -124,8 +128,9 @@ export const copacol: Empresa = {
   id: 'copacol',
   nome: 'Copacol Cooperativa Agroindustrial',
   nomeCurto: 'Copacol',
-  subtitulo: 'Cooperativa — Cascavel/Marechal Cândido Rondon (PR)',
-  cor: '#ea580c', // laranja (identidade Copacol)
+  subtitulo: 'Cooperativa agroindustrial — Cafelândia (PR)',
+  cor: '#D45A1E', // passo de dado da família laranja queimado
+  corSuave: '#FBEADF',
   bruto: copacolBruto,
   indicadores: copacolBruto.map(computarIndicadores),
 }
@@ -138,6 +143,16 @@ export const empresas: Empresa[] = [brf, copacol]
 // `indicadores` de cada empresa para as séries históricas (sparklines e
 // gráficos de evolução), mas fora da faixa comum.
 export const anosComuns = [2021, 2022, 2023, 2024] as const
+
+/** Todos os anos com dado para pelo menos uma das empresas, do mais recente ao mais antigo. */
+export const todosAnos: number[] = Array.from(
+  new Set([...brfBruto, ...copacolBruto].map((d) => d.ano)),
+).sort((a, b) => b - a)
+
+/** Indicadores do ano, ou `null` quando a empresa não tem dado nesse exercício. */
+export function indicadorOpcional(empresa: Empresa, ano: number): AnnualIndicators | null {
+  return empresa.indicadores.find((x) => x.ano === ano) ?? null
+}
 
 export function indicadorPorAno(empresa: Empresa, ano: number): AnnualIndicators {
   const i = empresa.indicadores.find((x) => x.ano === ano)
