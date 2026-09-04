@@ -10,7 +10,7 @@ import {
   Tooltip,
   ReferenceLine,
 } from 'recharts'
-import { brf, copacol, anosComuns, indicadorPorAno, type Empresa } from '../data'
+import { brf, copacol, cvale, empresas, anosComuns, indicadorPorAno, type Empresa } from '../data'
 import { formatDias, formatX, formatBi } from '../format'
 import { grupos } from '../painel'
 import { CicloWaterfall, dominioCiclo } from '../components/CicloWaterfall'
@@ -18,36 +18,37 @@ import { ComparativoBarras } from '../components/ComparativoBarras'
 import { Card, TituloSecao, MolduraGrafico, TooltipCartao, EIXO, GRADE } from '../components/ui'
 
 const ANOS_SERIE = Array.from(
-  new Set([...brf.indicadores, ...copacol.indicadores].map((i) => i.ano)),
+  new Set(empresas.flatMap((e) => e.indicadores.map((i) => i.ano))),
 ).sort()
 
-/** Série anual de um indicador para as duas empresas, com buraco onde falta dado. */
+const LEGENDA = empresas.map((e) => ({ rotulo: e.nomeCurto, cor: e.cor }))
+
+/** Série anual de um indicador para as três empresas, com buraco onde falta dado. */
 function serie(key: 'cicloFinanceiroDias' | 'giroEstoque') {
-  return ANOS_SERIE.map((a) => ({
-    ano: a,
-    BRF: brf.indicadores.find((i) => i.ano === a)?.[key],
-    Copacol: copacol.indicadores.find((i) => i.ano === a)?.[key],
-  }))
+  return ANOS_SERIE.map((a) => {
+    const linha: Record<string, number | undefined> = { ano: a }
+    for (const e of empresas) linha[e.nomeCurto] = e.indicadores.find((i) => i.ano === a)?.[key]
+    return linha
+  })
 }
 
 const CICLO_SERIE = serie('cicloFinanceiroDias')
 const GIRO_SERIE = serie('giroEstoque')
 
 export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => void }) {
+  const atuais = empresas.map((empresa) => ({ empresa, indicador: indicadorPorAno(empresa, ano) }))
   const brfAtual = indicadorPorAno(brf, ano)
   const copacolAtual = indicadorPorAno(copacol, ano)
+  const cvaleAtual = indicadorPorAno(cvale, ano)
 
-  const dominio = dominioCiclo([brfAtual, copacolAtual])
+  const dominio = dominioCiclo(atuais.map((a) => a.indicador))
 
   const rentabilidade = [
-    { metrica: 'Margem EBITDA', BRF: brfAtual.margemEbitda * 100, Copacol: copacolAtual.margemEbitda * 100 },
-    { metrica: 'ROIC', BRF: brfAtual.roic * 100, Copacol: copacolAtual.roic * 100 },
+    { metrica: 'Margem EBITDA', ...Object.fromEntries(atuais.map((a) => [a.empresa.nomeCurto, a.indicador.margemEbitda * 100])) },
+    { metrica: 'ROIC', ...Object.fromEntries(atuais.map((a) => [a.empresa.nomeCurto, a.indicador.roic * 100])) },
   ]
 
-  const participantes = [
-    { empresa: brf, indicador: brfAtual },
-    { empresa: copacol, indicador: copacolAtual },
-  ]
+  const participantes = atuais
 
   const receitaCresc = (empresa: Empresa) => {
     const atual = indicadorPorAno(empresa, ano)
@@ -56,7 +57,12 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
     return (atual.receitaLiquida - anterior.receitaLiquida) / anterior.receitaLiquida
   }
 
-  const diferencaCiclo = copacolAtual.cicloFinanceiroDias - brfAtual.cicloFinanceiroDias
+  // A cooperativa com o ciclo mais longo, para nomear o extremo oposto da BRF.
+  const cicloMaisLongo = [copacolAtual, cvaleAtual].reduce((a, b) =>
+    a.cicloFinanceiroDias >= b.cicloFinanceiroDias ? a : b,
+  )
+  const empresaCicloMaisLongo = cicloMaisLongo === copacolAtual ? copacol : cvale
+  const diferencaCiclo = cicloMaisLongo.cicloFinanceiroDias - brfAtual.cicloFinanceiroDias
 
   return (
     <div className="space-y-14">
@@ -76,11 +82,12 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
             </h1>
             <p className="mt-5 text-base leading-relaxed text-cinza">
               Em {ano}, a BRF fecha o ciclo financeiro em{' '}
-              <strong className="font-semibold text-tinta">{formatDias(brfAtual.cicloFinanceiroDias)}</strong> e a
-              Copacol em <strong className="font-semibold text-tinta">{formatDias(copacolAtual.cicloFinanceiroDias)}</strong>
+              <strong className="font-semibold text-tinta">{formatDias(brfAtual.cicloFinanceiroDias)}</strong> e a{' '}
+              {empresaCicloMaisLongo.nomeCurto} em{' '}
+              <strong className="font-semibold text-tinta">{formatDias(cicloMaisLongo.cicloFinanceiroDias)}</strong>
               {' — '}
-              uma distância de {formatDias(Math.abs(diferencaCiclo))}. A cascata abaixo mostra de onde ela vem: prazo com
-              fornecedor.
+              uma distância de {formatDias(Math.abs(diferencaCiclo))}. As cascatas abaixo mostram de onde ela vem: prazo
+              com fornecedor.
             </p>
           </div>
 
@@ -102,9 +109,10 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
 
         {/* Assinatura da página: a cascata do ciclo financeiro */}
         <Card className="mt-8 overflow-hidden">
-          <div className="grid gap-x-8 gap-y-10 p-6 sm:p-8 md:grid-cols-2">
-            <CicloWaterfall empresa={brf} indicador={brfAtual} dominio={dominio} />
-            <CicloWaterfall empresa={copacol} indicador={copacolAtual} dominio={dominio} />
+          <div className="grid gap-x-8 gap-y-10 p-6 sm:p-8 md:grid-cols-2 xl:grid-cols-3">
+            {atuais.map(({ empresa, indicador }) => (
+              <CicloWaterfall key={empresa.id} empresa={empresa} indicador={indicador} dominio={dominio} />
+            ))}
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-linha bg-papel px-6 py-3 sm:px-8">
             <span className="flex items-center gap-1.5 font-mono text-[11px] text-cinza">
@@ -124,12 +132,12 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Identificação das duas empresas                                   */}
+      {/* Identificação das três empresas                                   */}
       {/* ---------------------------------------------------------------- */}
       <section>
-        <TituloSecao titulo="As duas empresas" descricao={`Porte e crescimento em ${ano}.`} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[brf, copacol].map((empresa) => {
+        <TituloSecao titulo="As três empresas" descricao={`Porte e crescimento em ${ano}.`} />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {empresas.map((empresa) => {
             const atual = indicadorPorAno(empresa, ano)
             const cresc = receitaCresc(empresa)
             return (
@@ -169,16 +177,13 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
       <section>
         <TituloSecao
           titulo="Séries e comparativos"
-          descricao="Evolução no tempo e recorte do ano selecionado. As duas empresas mantêm a mesma cor em todos os gráficos."
+          descricao="Evolução no tempo e recorte do ano selecionado. As três empresas mantêm a mesma cor em todos os gráficos."
         />
         <div className="grid gap-4 lg:grid-cols-2">
           <MolduraGrafico
             titulo="Ciclo financeiro ao longo do tempo"
             descricao="PME + PMR − PMP, em dias. Abaixo da linha do zero, o fornecedor financia a operação."
-            legenda={[
-              { rotulo: 'BRF', cor: brf.cor },
-              { rotulo: 'Copacol', cor: copacol.cor },
-            ]}
+            legenda={LEGENDA}
           >
             <ResponsiveContainer width="100%" height={230}>
               <LineChart data={CICLO_SERIE} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
@@ -187,8 +192,9 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
                 <YAxis {...EIXO} width={46} />
                 <ReferenceLine y={0} stroke="#171717" strokeWidth={1.25} />
                 <Tooltip cursor={{ stroke: '#d2ccbe', strokeWidth: 1 }} content={<TooltipCartao format={formatDias} />} />
-                <Line type="monotone" dataKey="BRF" stroke={brf.cor} strokeWidth={2} dot={{ r: 4, strokeWidth: 2, stroke: '#fffefb' }} connectNulls isAnimationActive={false} />
-                <Line type="monotone" dataKey="Copacol" stroke={copacol.cor} strokeWidth={2} dot={{ r: 4, strokeWidth: 2, stroke: '#fffefb' }} connectNulls isAnimationActive={false} />
+                {empresas.map((e) => (
+                  <Line key={e.id} type="monotone" dataKey={e.nomeCurto} stroke={e.cor} strokeWidth={2} dot={{ r: 4, strokeWidth: 2, stroke: '#fffefb' }} connectNulls isAnimationActive={false} />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </MolduraGrafico>
@@ -196,10 +202,7 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
           <MolduraGrafico
             titulo="Giro do estoque ao longo do tempo"
             descricao="Quantas vezes o estoque é vendido e reposto por ano. Quanto maior, mais eficiente."
-            legenda={[
-              { rotulo: 'BRF', cor: brf.cor },
-              { rotulo: 'Copacol', cor: copacol.cor },
-            ]}
+            legenda={LEGENDA}
           >
             <ResponsiveContainer width="100%" height={230}>
               <LineChart data={GIRO_SERIE} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
@@ -207,8 +210,9 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
                 <XAxis dataKey="ano" {...EIXO} />
                 <YAxis {...EIXO} width={46} domain={[0, 'auto']} />
                 <Tooltip cursor={{ stroke: '#d2ccbe', strokeWidth: 1 }} content={<TooltipCartao format={formatX} />} />
-                <Line type="monotone" dataKey="BRF" stroke={brf.cor} strokeWidth={2} dot={{ r: 4, strokeWidth: 2, stroke: '#fffefb' }} connectNulls isAnimationActive={false} />
-                <Line type="monotone" dataKey="Copacol" stroke={copacol.cor} strokeWidth={2} dot={{ r: 4, strokeWidth: 2, stroke: '#fffefb' }} connectNulls isAnimationActive={false} />
+                {empresas.map((e) => (
+                  <Line key={e.id} type="monotone" dataKey={e.nomeCurto} stroke={e.cor} strokeWidth={2} dot={{ r: 4, strokeWidth: 2, stroke: '#fffefb' }} connectNulls isAnimationActive={false} />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </MolduraGrafico>
@@ -216,10 +220,7 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
           <MolduraGrafico
             titulo={`Rentabilidade em ${ano}`}
             descricao="Margem EBITDA e ROIC. As duas medidas estão em porcentagem, então dividem o mesmo eixo."
-            legenda={[
-              { rotulo: 'BRF', cor: brf.cor },
-              { rotulo: 'Copacol', cor: copacol.cor },
-            ]}
+            legenda={LEGENDA}
           >
             <ResponsiveContainer width="100%" height={230}>
               <BarChart data={rentabilidade} margin={{ top: 6, right: 12, left: -14, bottom: 0 }} barGap={2}>
@@ -228,8 +229,9 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
                 <YAxis {...EIXO} width={46} tickFormatter={(v) => `${v}%`} />
                 <ReferenceLine y={0} stroke="#171717" strokeWidth={1.25} />
                 <Tooltip cursor={{ fill: 'rgba(23,23,23,0.04)' }} content={<TooltipCartao format={(v) => `${v.toFixed(1)}%`} />} />
-                <Bar dataKey="BRF" fill={brf.cor} radius={[3, 3, 0, 0]} maxBarSize={54} isAnimationActive={false} />
-                <Bar dataKey="Copacol" fill={copacol.cor} radius={[3, 3, 0, 0]} maxBarSize={54} isAnimationActive={false} />
+                {empresas.map((e) => (
+                  <Bar key={e.id} dataKey={e.nomeCurto} fill={e.cor} radius={[3, 3, 0, 0]} maxBarSize={44} isAnimationActive={false} />
+                ))}
               </BarChart>
             </ResponsiveContainer>
           </MolduraGrafico>

@@ -63,11 +63,13 @@ export default function App() {
         <div className="px-6 pb-7 pt-8">
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">Análise setorial</p>
           <p className="mt-2 text-lg font-extrabold leading-tight tracking-tight text-white">
-            Copacol
-            <span className="mx-1.5 font-normal text-white/45">vs.</span>
             BRF
+            <span className="mx-1 font-normal text-white/45">·</span>
+            Copacol
+            <span className="mx-1 font-normal text-white/45">·</span>
+            C.Vale
           </p>
-          <p className="mt-1 font-mono text-[11px] text-white/55">Proteína animal · 2020–2025</p>
+          <p className="mt-1 font-mono text-[11px] text-white/55">Proteína e grãos · 2020–2025</p>
         </div>
 
         <nav aria-label="Seções do painel" className="flex-1 px-3">

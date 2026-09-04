@@ -1,8 +1,8 @@
 // Os quatro blocos temáticos do panorama.
 //
-// Nem todo indicador pedido existe nas demonstrações financeiras usadas aqui.
-// Em vez de estimar, cada métrica sem fonte devolve `null` e declara o que
-// seria preciso para preenchê-la — a interface a desenha como "sem dado".
+// Cada métrica devolve `number | null`. `null` significa que a base daquela
+// empresa não permite calcular o indicador — nunca uma estimativa. A interface
+// desenha esses casos como "sem dado" e mostra o que falta extrair.
 
 import type { AnnualIndicators } from './data'
 import { formatDias, formatPct, formatX } from './format'
@@ -10,11 +10,10 @@ import { formatDias, formatPct, formatX } from './format'
 export interface MetricaPainel {
   key: string
   label: string
-  /** `null` quando a demonstração usada não permite calcular o indicador. */
   valor: (i: AnnualIndicators) => number | null
   format: (v: number) => string
   menorMelhor: boolean
-  /** O que falta para calcular, quando `valor` devolve `null`. */
+  /** O que falta para completar o indicador nas empresas sem dado. */
   faltaDado?: string
 }
 
@@ -25,10 +24,17 @@ export interface GrupoPainel {
   metricas: MetricaPainel[]
 }
 
-/** Indicador ainda sem fonte na base atual. */
-function semDado(key: string, label: string, menorMelhor: boolean, falta: string): MetricaPainel {
-  return { key, label, valor: () => null, format: (v) => String(v), menorMelhor, faltaDado: falta }
-}
+const formatToneladas = (v: number) =>
+  `${(v / 1_000_000).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mt`
+
+const formatMilhoes = (v: number) =>
+  `R$ ${(v / 1_000).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} mi`
+
+const FALTA_CAPEX =
+  'Disponível só para a C.Vale. Para BRF e Copacol falta extrair a linha de aquisição de imobilizado e intangível das atividades de investimento da DFC.'
+
+const FALTA_OPERACIONAL =
+  'Disponível só para a C.Vale em 2022, do Relatório Anual. Os demais anos e as outras duas empresas dependem de relatórios operacionais que não estão nesta base.'
 
 export const grupos: GrupoPainel[] = [
   {
@@ -37,24 +43,30 @@ export const grupos: GrupoPainel[] = [
     descricao: 'Quanta produção e quanta receita a estrutura instalada consegue gerar.',
     metricas: [
       { key: 'giroAtivo', label: 'Giro do Ativo', valor: (i) => i.giroAtivo, format: formatX, menorMelhor: false },
-      semDado(
-        'volume',
-        'Volume produzido / vendido',
-        false,
-        'Exige dados operacionais em toneladas ou cabeças abatidas — divulgados nos relatórios de produção e releases trimestrais, não nas demonstrações financeiras.',
-      ),
-      semDado(
-        'produtividade',
-        'Produtividade por empregado',
-        false,
-        'Exige o número médio de empregados do exercício, que nenhum dos dois documentos usados aqui traz.',
-      ),
-      semDado(
-        'capacidade',
-        'Utilização da capacidade',
-        false,
-        'Exige capacidade instalada e produção efetiva por planta — informação operacional, fora das demonstrações financeiras.',
-      ),
+      {
+        key: 'volume',
+        label: 'Volume produzido / recebido',
+        valor: (i) => i.volumeToneladas,
+        format: formatToneladas,
+        menorMelhor: false,
+        faltaDado: FALTA_OPERACIONAL,
+      },
+      {
+        key: 'produtividade',
+        label: 'Receita por funcionário',
+        valor: (i) => i.receitaPorFuncionario,
+        format: formatMilhoes,
+        menorMelhor: false,
+        faltaDado: FALTA_OPERACIONAL,
+      },
+      {
+        key: 'capacidade',
+        label: 'Utilização da capacidade de armazenagem',
+        valor: (i) => i.utilizacaoCapacidade,
+        format: formatX,
+        menorMelhor: false,
+        faltaDado: FALTA_OPERACIONAL,
+      },
     ],
   },
   {
@@ -84,18 +96,22 @@ export const grupos: GrupoPainel[] = [
     titulo: 'Investimento e Estrutura',
     descricao: 'Quanto vai para o ativo fixo e como o balanço é financiado.',
     metricas: [
-      semDado(
-        'capexReceita',
-        'CAPEX sobre receita',
-        false,
-        'Exige a linha de aquisição de imobilizado e intangível da Demonstração dos Fluxos de Caixa (atividades de investimento), ainda não extraída nesta base.',
-      ),
-      semDado(
-        'capexDepreciacao',
-        'CAPEX sobre depreciação',
-        false,
-        'Mesma linha de CAPEX acima. A depreciação já é derivável (EBITDA − EBIT), então basta extrair o CAPEX para liberar os dois indicadores.',
-      ),
+      {
+        key: 'capexReceita',
+        label: 'CAPEX sobre receita',
+        valor: (i) => i.capexSobreReceita,
+        format: formatPct,
+        menorMelhor: false,
+        faltaDado: FALTA_CAPEX,
+      },
+      {
+        key: 'capexDepreciacao',
+        label: 'CAPEX sobre depreciação',
+        valor: (i) => i.capexSobreDepreciacao,
+        format: formatX,
+        menorMelhor: false,
+        faltaDado: FALTA_CAPEX,
+      },
       { key: 'endividamento', label: 'Índice de endividamento', valor: (i) => i.endividamento, format: formatPct, menorMelhor: true },
       { key: 'alavancagem', label: 'Dívida líquida sobre EBITDA', valor: (i) => i.alavancagem, format: formatX, menorMelhor: true },
     ],

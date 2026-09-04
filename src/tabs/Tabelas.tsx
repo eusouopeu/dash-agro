@@ -1,64 +1,60 @@
 import { useMemo, useState } from 'react'
 import { ChevronUpIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { brf, copacol, todosAnos, indicadorOpcional } from '../data'
+import { empresas, todosAnos, indicadorOpcional, type Empresa } from '../data'
 import { ROWS, formatDelta, type IndicatorRow } from '../format'
 import { Card, TituloSecao, Sparkline } from '../components/ui'
 
-type ColunaKey = 'indicador' | 'brf' | 'copacol'
+/** 'indicador' ou o id de uma empresa. */
+type ColunaKey = string
 type Direcao = 'asc' | 'desc'
+
+interface Celula {
+  empresa: Empresa
+  valor: number | null
+  delta: number | null
+}
 
 interface Linha {
   row: IndicatorRow
-  brfValor: number | null
-  copacolValor: number | null
-  brfDelta: number | null
-  copacolDelta: number | null
+  celulas: Celula[]
 }
 
 const COLUNAS: { key: ColunaKey; rotulo: string; alinha: 'left' | 'right' }[] = [
   { key: 'indicador', rotulo: 'Indicador', alinha: 'left' },
-  { key: 'brf', rotulo: 'BRF', alinha: 'right' },
-  { key: 'copacol', rotulo: 'Copacol', alinha: 'right' },
+  ...empresas.map((e) => ({ key: e.id, rotulo: e.nomeCurto, alinha: 'right' as const })),
 ]
 
 function TabelaAno({ ano }: { ano: number }) {
   const [coluna, setColuna] = useState<ColunaKey>('indicador')
   const [direcao, setDirecao] = useState<Direcao>('asc')
 
-  const b = indicadorOpcional(brf, ano)
-  const c = indicadorOpcional(copacol, ano)
-  const bAnt = indicadorOpcional(brf, ano - 1)
-  const cAnt = indicadorOpcional(copacol, ano - 1)
-  const comparavel = b !== null && c !== null
+  const presentes = empresas.filter((e) => indicadorOpcional(e, ano) !== null)
 
-  const linhas: Linha[] = ROWS.map((row) => {
-    const brfValor = b ? (b[row.key] as number) : null
-    const copacolValor = c ? (c[row.key] as number) : null
-    return {
-      row,
-      brfValor,
-      copacolValor,
-      brfDelta: b && bAnt ? brfValor! - (bAnt[row.key] as number) : null,
-      copacolDelta: c && cAnt ? copacolValor! - (cAnt[row.key] as number) : null,
-    }
-  })
+  const linhas: Linha[] = ROWS.map((row) => ({
+    row,
+    celulas: empresas.map((empresa) => {
+      const atual = indicadorOpcional(empresa, ano)
+      const anterior = indicadorOpcional(empresa, ano - 1)
+      const valor = atual ? (atual[row.key] as number) : null
+      return {
+        empresa,
+        valor,
+        delta: atual && anterior ? valor! - (anterior[row.key] as number) : null,
+      }
+    }),
+  }))
 
   const ordenadas = useMemo(() => {
     const sinal = direcao === 'asc' ? 1 : -1
     return [...linhas].sort((x, y) => {
-      switch (coluna) {
-        case 'indicador':
-          return sinal * x.row.label.localeCompare(y.row.label, 'pt-BR')
-        default: {
-          const vx = coluna === 'brf' ? x.brfValor : x.copacolValor
-          const vy = coluna === 'brf' ? y.brfValor : y.copacolValor
-          // Linhas sem dado vão sempre para o fim, independente da direção.
-          if (vx === null && vy === null) return 0
-          if (vx === null) return 1
-          if (vy === null) return -1
-          return sinal * (vx - vy)
-        }
-      }
+      if (coluna === 'indicador') return sinal * x.row.label.localeCompare(y.row.label, 'pt-BR')
+      const vx = x.celulas.find((c) => c.empresa.id === coluna)?.valor ?? null
+      const vy = y.celulas.find((c) => c.empresa.id === coluna)?.valor ?? null
+      // Linhas sem dado vão sempre para o fim, independente da direção.
+      if (vx === null && vy === null) return 0
+      if (vx === null) return 1
+      if (vy === null) return -1
+      return sinal * (vx - vy)
     })
   }, [linhas, coluna, direcao])
 
@@ -70,26 +66,21 @@ function TabelaAno({ ano }: { ano: number }) {
     }
   }
 
-  const soUma = !comparavel
-  const empresaUnica = b ? brf : copacol
-
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-linha bg-papel px-5 py-3">
         <h3 className="tabular font-mono text-lg font-semibold tracking-tight text-tinta">{ano}</h3>
-        {soUma ? (
-          <p className="font-mono text-[11px] text-cinza">
-            Só a {empresaUnica.nomeCurto} tem dado neste exercício — fora do comparativo
-          </p>
-        ) : (
-          <p className="font-mono text-[11px] text-cinza">Comparativo · variação contra {ano - 1}</p>
-        )}
+        <p className="font-mono text-[11px] text-cinza">
+          {presentes.length === empresas.length
+            ? `As três empresas · variação contra ${ano - 1}`
+            : `Com dado neste exercício: ${presentes.map((e) => e.nomeCurto).join(', ')}`}
+        </p>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        <table className="w-full min-w-[820px] border-collapse text-sm">
           <caption className="sr-only">
-            Indicadores operacionais de BRF e Copacol no exercício de {ano}. Clique no título de uma coluna para ordenar.
+            Indicadores operacionais no exercício de {ano}. Clique no título de uma coluna para ordenar.
           </caption>
           <thead>
             <tr className="border-b border-linha">
@@ -132,10 +123,7 @@ function TabelaAno({ ano }: { ano: number }) {
                   </span>
                 </th>
 
-                {[
-                  { empresa: brf, valor: l.brfValor, delta: l.brfDelta },
-                  { empresa: copacol, valor: l.copacolValor, delta: l.copacolDelta },
-                ].map(({ empresa, valor, delta }) => (
+                {l.celulas.map(({ empresa, valor, delta }) => (
                   <td key={empresa.id} className="px-4 py-3 text-right">
                     {valor === null ? (
                       <span className="font-mono text-sm text-cinza">—</span>
@@ -172,7 +160,7 @@ export function Tabelas() {
       />
 
       <p className="-mt-4 rounded-md border border-linha bg-carta px-4 py-3 text-xs leading-relaxed text-cinza">
-        <strong className="font-semibold text-tinta">Sobre ordenar pelas colunas BRF e Copacol:</strong> a ordenação é
+        <strong className="font-semibold text-tinta">Sobre ordenar pelas colunas das empresas:</strong> a ordenação é
         pelo valor numérico bruto, e os indicadores têm unidades diferentes — dias, múltiplos e porcentagens acabam
         misturados na mesma escala. É útil para achar o maior ou o menor número da coluna, não para ranquear
         desempenho.

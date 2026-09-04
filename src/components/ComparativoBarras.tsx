@@ -6,8 +6,8 @@ import { Card } from './ui'
 //
 // A barra é ancorada no zero e proporcional ao valor — não ao desempenho.
 // Assim o Ciclo Financeiro negativo da BRF aparece crescendo para a esquerda
-// em vez de virar um número sem representação. Quem tem o melhor resultado
-// recebe cor cheia e valor em destaque; o outro fica na mesma matiz esmaecida.
+// em vez de virar um número sem representação. Toda empresa usa sua cor cheia:
+// quem tem o melhor resultado é marcado só pelo valor em destaque.
 
 interface Participante {
   empresa: Empresa
@@ -74,12 +74,7 @@ function Barra({
                   )}
                   <span
                     className="absolute inset-y-0 rounded-[3px]"
-                    style={{
-                      left: `${esquerda}%`,
-                      width: `${largura}%`,
-                      backgroundColor: empresa.cor,
-                      opacity: ehMelhor ? 1 : 0.42,
-                    }}
+                    style={{ left: `${esquerda}%`, width: `${largura}%`, backgroundColor: empresa.cor }}
                     aria-hidden="true"
                   />
                 </div>
@@ -97,7 +92,8 @@ function Barra({
         })}
       </div>
 
-      {metrica.faltaDado && (
+      {/* A nota só aparece quando alguma empresa de fato ficou sem dado. */}
+      {metrica.faltaDado && presentes.length < valores.length && (
         <p className="mt-2.5 pl-[76px] font-mono text-[10px] leading-relaxed text-cinza">{metrica.faltaDado}</p>
       )}
     </div>

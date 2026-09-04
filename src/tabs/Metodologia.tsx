@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/20/solid'
 import { CalculatorIcon } from '@heroicons/react/24/outline'
-import { formulas, premissas, limitacoes, type Formula } from '../metodologia'
+import { formulas, formulasParciais, premissas, limitacoes, type Formula } from '../metodologia'
 import { ROWS } from '../format'
 import { Card, TituloSecao } from '../components/ui'
 
@@ -68,6 +68,18 @@ export function Metodologia() {
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {formulas.map((f) => (
+            <CartaoFormula key={f.key} f={f} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <TituloSecao
+          titulo="Fórmulas de cobertura parcial"
+          descricao="Calculadas só para as empresas cuja base traz os insumos. Onde falta o dado, o panorama mostra sem dado e diz o que precisa ser extraído — nenhum valor é estimado."
+        />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {formulasParciais.map((f) => (
             <CartaoFormula key={f.key} f={f} />
           ))}
         </div>

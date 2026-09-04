@@ -25,7 +25,7 @@ export interface ReferenciaABNT {
   /** Nota explicativa nossa — fora da referência formal. */
   nota?: string
   /** A qual conjunto de dados esta referência dá origem. */
-  grupo: 'brf' | 'copacol' | 'conceitual'
+  grupo: 'brf' | 'copacol' | 'cvale' | 'conceitual'
 }
 
 const ACESSO = '4 set. 2026'
@@ -162,6 +162,54 @@ export const referencias: ReferenciaABNT[] = [
     grupo: 'copacol',
   },
 
+  // --- Fonte primária dos dados da C.Vale ---------------------------------
+  {
+    id: 'cvale-2022',
+    autor: 'C.VALE — COOPERATIVA AGROINDUSTRIAL',
+    titulo: 'Relatório anual 2022',
+    local: 'Palotina, PR',
+    editora: 'C.Vale',
+    ano: '2023',
+    complemento:
+      'CNPJ 77.863.223/0001-07. Fonte dos dados operacionais de 2022: quadro de funcionários, produção agrícola recebida e capacidade estática de armazenagem',
+    nota: 'Único relatório anual disponível nesta base — por isso os indicadores operacionais da C.Vale só existem para 2022.',
+    grupo: 'cvale',
+  },
+  {
+    id: 'cvale-df-2023',
+    autor: 'C.VALE — COOPERATIVA AGROINDUSTRIAL',
+    titulo: 'Demonstrações financeiras 2023',
+    subtitulo: 'balanço patrimonial, demonstração de sobras ou perdas e demonstração dos fluxos de caixa',
+    local: 'Palotina, PR',
+    editora: 'C.Vale',
+    ano: '2024',
+    complemento:
+      'Demonstrações consolidadas. Fonte dos exercícios de 2022 (coluna comparativa) e 2023 (coluna corrente)',
+    grupo: 'cvale',
+  },
+  {
+    id: 'cvale-df-2024',
+    autor: 'C.VALE — COOPERATIVA AGROINDUSTRIAL',
+    titulo: 'Demonstrações financeiras 2024',
+    subtitulo: 'balanço patrimonial, demonstração de sobras ou perdas e demonstração dos fluxos de caixa',
+    local: 'Palotina, PR',
+    editora: 'C.Vale',
+    ano: '2025',
+    complemento: 'Demonstrações consolidadas. Fonte do exercício de 2024',
+    grupo: 'cvale',
+  },
+  {
+    id: 'cvale-df-2025',
+    autor: 'C.VALE — COOPERATIVA AGROINDUSTRIAL',
+    titulo: 'Demonstrações financeiras 2025',
+    subtitulo: 'balanço patrimonial, demonstração de sobras ou perdas e demonstração dos fluxos de caixa',
+    local: 'Palotina, PR',
+    editora: 'C.Vale',
+    ano: '2026',
+    complemento: 'Demonstrações consolidadas. Fonte do exercício de 2025',
+    grupo: 'cvale',
+  },
+
   // --- Referência conceitual ----------------------------------------------
   {
     id: 'fleuriet',
@@ -192,6 +240,12 @@ export const gruposReferencia: {
     titulo: 'Copacol',
     descricao:
       'Relatórios financeiros anuais da cooperativa, com demonstrações consolidadas auditadas. Cada exercício aparece como coluna corrente em pelo menos um relatório.',
+  },
+  {
+    id: 'cvale',
+    titulo: 'C.Vale',
+    descricao:
+      'Demonstrações consolidadas dos relatórios anuais da cooperativa, mais o Relatório Anual 2022 para os dados operacionais. É a única das três empresas com CAPEX extraído.',
   },
   {
     id: 'conceitual',

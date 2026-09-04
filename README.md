@@ -1,18 +1,19 @@
-# dash-agro — Copacol vs. BRF
+# dash-agro — BRF · Copacol · C.Vale
 
 Comparativo de eficiência operacional, ciclo financeiro e rentabilidade entre
-**BRF S.A.** (B3: BRFS3) e a **Copacol — Cooperativa Agroindustrial Consolata**,
-a partir de demonstrações financeiras auditadas.
+**BRF S.A.** (B3: BRFS3), a **Copacol — Cooperativa Agroindustrial Consolata** e
+a **C.Vale — Cooperativa Agroindustrial**, a partir de demonstrações financeiras
+auditadas.
 
-Anos com dado real para as duas empresas: **2021–2024**. A BRF também tem 2020 e
-a Copacol também tem 2025 — mantidos nas séries históricas, fora do comparativo
-lado a lado.
+Anos com dado real para as três empresas: **2022–2024**. Cada empresa mantém sua
+série completa nas tabelas e nos gráficos de evolução: BRF 2020–2024, Copacol
+2021–2025, C.Vale 2022–2025.
 
 ## Seções
 
 | Aba                   | Conteúdo                                                              |
 | --------------------- | --------------------------------------------------------------------- |
-| Panorama geral        | Cascata do ciclo financeiro, porte das empresas, séries e comparativos |
+| Panorama geral        | Cascatas do ciclo financeiro, porte das empresas, séries e quatro blocos de indicadores |
 | Tabela de indicadores | Uma tabela por exercício, com ordenação por qualquer coluna            |
 | Fontes de dados       | Todas as fontes em formato ABNT NBR 6023:2018, com links               |
 | Metodologia           | Fórmulas, premissas de cálculo e limitações do comparativo             |
@@ -23,8 +24,14 @@ inferior só com ícones. Cada aba tem URL própria (`#panorama`, `#indicadores`
 
 ## Indicadores
 
-Giro do Estoque · PME · PMR · PMP · Ciclo Financeiro · NCG · Giro do Ativo ·
-Margem EBITDA · ROIC · Alavancagem (Dív. Líq./EBITDA).
+**Cobertura completa** — Giro do Estoque · PME · PMR · PMP · Ciclo Financeiro ·
+NCG · Giro do Ativo · Margem Operacional · Margem EBITDA · ROIC · Índice de
+Endividamento · Alavancagem (Dív. Líq./EBITDA).
+
+**Cobertura parcial** — CAPEX/Receita e CAPEX/Depreciação (só C.Vale); Volume
+recebido, Receita por Funcionário e Utilização da Capacidade de Armazenagem (só
+C.Vale, só 2022). Onde falta a base, o painel mostra "sem dado" e diz o que
+precisa ser extraído. Nada é estimado.
 
 As definições exatas estão em `src/metodologia.ts` e aparecem renderizadas na
 aba Metodologia.
@@ -35,6 +42,8 @@ aba Metodologia.
   https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/
 - **Copacol** — Relatórios financeiros anuais auditados, obtidos diretamente
   junto à cooperativa (não publicados de forma indexável).
+- **C.Vale** — Demonstrações consolidadas dos relatórios de 2023, 2024 e 2025,
+  mais o Relatório Anual 2022 para os dados operacionais.
 
 Referências completas em `src/referencias.ts`.
 
@@ -48,10 +57,11 @@ Referências completas em `src/referencias.ts`.
 | Assinatura | `#087F8C` |
 | Acento     | `#E76F32` |
 
-As marcas de dado usam passos derivados dessas famílias — `#008DA0` (BRF) e
-`#D45A1E` (Copacol) — validados para contraste mínimo de 3:1 sobre o papel e
-separação sob daltonismo. As cores da marca original ficam para a interface
-(sidebar, acentos), não para os gráficos.
+As marcas de dado usam passos derivados dessas famílias — `#008DA0` (BRF),
+`#D45A1E` (Copacol) e `#7A4FA3` (C.Vale) — validados em conjunto para contraste
+mínimo de 3:1 sobre o papel e separação sob daltonismo em todos os pares. As
+cores da marca original ficam para a interface (sidebar, acentos), não para os
+gráficos.
 
 Tipografia: **Archivo** para texto e títulos, **IBM Plex Mono** para todo número,
 rótulo e dado tabular.
