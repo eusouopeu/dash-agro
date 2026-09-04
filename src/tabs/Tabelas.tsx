@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { ChevronUpIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { brf, copacol, todosAnos, indicadorOpcional, anosComuns } from '../data'
-import { ROWS, melhor, formatDelta, type IndicatorRow } from '../format'
-import { Card, TituloSecao, Sparkline, SeloMelhor } from '../components/ui'
+import { brf, copacol, todosAnos, indicadorOpcional } from '../data'
+import { ROWS, formatDelta, type IndicatorRow } from '../format'
+import { Card, TituloSecao, Sparkline } from '../components/ui'
 
-type ColunaKey = 'indicador' | 'brf' | 'copacol' | 'vantagem'
+type ColunaKey = 'indicador' | 'brf' | 'copacol'
 type Direcao = 'asc' | 'desc'
 
 interface Linha {
@@ -13,18 +13,12 @@ interface Linha {
   copacolValor: number | null
   brfDelta: number | null
   copacolDelta: number | null
-  brfGanha: boolean
-  copacolGanha: boolean
-  /** Chave de ordenação da coluna Vantagem: BRF < Copacol < sem par. */
-  vantagemOrdem: number
-  vantagemTexto: string
 }
 
-const COLUNAS: { key: ColunaKey; rotulo: string; alinha: 'left' | 'right' | 'center' }[] = [
+const COLUNAS: { key: ColunaKey; rotulo: string; alinha: 'left' | 'right' }[] = [
   { key: 'indicador', rotulo: 'Indicador', alinha: 'left' },
   { key: 'brf', rotulo: 'BRF', alinha: 'right' },
   { key: 'copacol', rotulo: 'Copacol', alinha: 'right' },
-  { key: 'vantagem', rotulo: 'Vantagem', alinha: 'left' },
 ]
 
 function TabelaAno({ ano }: { ano: number }) {
@@ -40,18 +34,12 @@ function TabelaAno({ ano }: { ano: number }) {
   const linhas: Linha[] = ROWS.map((row) => {
     const brfValor = b ? (b[row.key] as number) : null
     const copacolValor = c ? (c[row.key] as number) : null
-    const brfGanha = comparavel && melhor(row, brfValor!, copacolValor!)
-    const copacolGanha = comparavel && melhor(row, copacolValor!, brfValor!)
     return {
       row,
       brfValor,
       copacolValor,
       brfDelta: b && bAnt ? brfValor! - (bAnt[row.key] as number) : null,
       copacolDelta: c && cAnt ? copacolValor! - (cAnt[row.key] as number) : null,
-      brfGanha,
-      copacolGanha,
-      vantagemOrdem: brfGanha ? 0 : copacolGanha ? 1 : 2,
-      vantagemTexto: brfGanha ? 'BRF' : copacolGanha ? 'Copacol' : '—',
     }
   })
 
@@ -61,8 +49,6 @@ function TabelaAno({ ano }: { ano: number }) {
       switch (coluna) {
         case 'indicador':
           return sinal * x.row.label.localeCompare(y.row.label, 'pt-BR')
-        case 'vantagem':
-          return sinal * (x.vantagemOrdem - y.vantagemOrdem || x.row.label.localeCompare(y.row.label, 'pt-BR'))
         default: {
           const vx = coluna === 'brf' ? x.brfValor : x.copacolValor
           const vy = coluna === 'brf' ? y.brfValor : y.copacolValor
@@ -147,9 +133,9 @@ function TabelaAno({ ano }: { ano: number }) {
                 </th>
 
                 {[
-                  { empresa: brf, valor: l.brfValor, delta: l.brfDelta, ganha: l.brfGanha },
-                  { empresa: copacol, valor: l.copacolValor, delta: l.copacolDelta, ganha: l.copacolGanha },
-                ].map(({ empresa, valor, delta, ganha }) => (
+                  { empresa: brf, valor: l.brfValor, delta: l.brfDelta },
+                  { empresa: copacol, valor: l.copacolValor, delta: l.copacolDelta },
+                ].map(({ empresa, valor, delta }) => (
                   <td key={empresa.id} className="px-4 py-3 text-right">
                     {valor === null ? (
                       <span className="font-mono text-sm text-cinza">—</span>
@@ -157,14 +143,8 @@ function TabelaAno({ ano }: { ano: number }) {
                       <span className="flex items-center justify-end gap-2.5">
                         <Sparkline empresa={empresa} dataKey={l.row.key} />
                         <span>
-                          <span className="flex items-center justify-end">
-                            <span
-                              className="tabular font-mono text-sm font-semibold"
-                              style={{ color: ganha ? empresa.cor : 'var(--color-tinta)' }}
-                            >
-                              {l.row.format(valor)}
-                            </span>
-                            {ganha && <SeloMelhor />}
+                          <span className="tabular block font-mono text-sm font-semibold text-tinta">
+                            {l.row.format(valor)}
                           </span>
                           <span className="tabular block font-mono text-[10px] text-cinza">
                             {delta === null ? `sem ${ano - 1}` : `${formatDelta(delta, l.row.format)} vs. ${ano - 1}`}
@@ -174,21 +154,6 @@ function TabelaAno({ ano }: { ano: number }) {
                     )}
                   </td>
                 ))}
-
-                <td className="px-4 py-3">
-                  {l.vantagemTexto === '—' ? (
-                    <span className="font-mono text-xs text-cinza">—</span>
-                  ) : (
-                    <span className="flex items-center gap-1.5">
-                      <span
-                        className="inline-block h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: l.vantagemOrdem === 0 ? brf.cor : copacol.cor }}
-                        aria-hidden="true"
-                      />
-                      <span className="font-mono text-xs font-semibold text-tinta">{l.vantagemTexto}</span>
-                    </span>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>
@@ -203,14 +168,14 @@ export function Tabelas() {
     <div className="space-y-10">
       <TituloSecao
         titulo="Indicadores por exercício"
-        descricao={`Uma tabela por ano. Clique no título de qualquer coluna para ordenar em ordem crescente, e de novo para decrescente. O selo "melhor" e a coluna Vantagem só aparecem em ${anosComuns[0]}–${anosComuns[anosComuns.length - 1]}, os anos com dado real para as duas empresas.`}
+        descricao="Uma tabela por ano, com o valor de cada indicador e a variação contra o exercício anterior. Clique no título de qualquer coluna para ordenar em ordem crescente, e de novo para decrescente."
       />
 
       <p className="-mt-4 rounded-md border border-linha bg-carta px-4 py-3 text-xs leading-relaxed text-cinza">
         <strong className="font-semibold text-tinta">Sobre ordenar pelas colunas BRF e Copacol:</strong> a ordenação é
         pelo valor numérico bruto, e os indicadores têm unidades diferentes — dias, múltiplos e porcentagens acabam
         misturados na mesma escala. É útil para achar o maior ou o menor número da coluna, não para ranquear
-        desempenho. Para isso, use a coluna Vantagem.
+        desempenho.
       </p>
 
       {todosAnos.map((ano) => (

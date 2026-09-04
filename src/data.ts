@@ -75,9 +75,11 @@ export interface AnnualIndicators extends AnnualFinancials {
   cicloFinanceiroDias: number // PME + PMR − PMP
   ncg: number // (Contas a Receber + Estoques) − Fornecedores
   giroAtivo: number // Receita Líquida / Ativo Total
+  margemOperacional: number // EBIT / Receita Líquida (fração)
   margemEbitda: number // EBITDA / Receita Líquida (fração)
   roic: number // EBIT × (1 − alíquota efetiva) / (Dívida Líquida + Patrimônio Líquido) (fração)
   alavancagem: number // Dívida Líquida / EBITDA (x)
+  endividamento: number // (Ativo Total − Patrimônio Líquido) / Ativo Total — quanto do ativo é financiado por terceiros (fração)
 }
 
 function computarIndicadores(d: AnnualFinancials): AnnualIndicators {
@@ -94,9 +96,11 @@ function computarIndicadores(d: AnnualFinancials): AnnualIndicators {
     cicloFinanceiroDias: pmeDias + pmrDias - pmpDias,
     ncg,
     giroAtivo: d.receitaLiquida / d.ativoTotal,
+    margemOperacional: d.ebit / d.receitaLiquida,
     margemEbitda: d.ebitda / d.receitaLiquida,
     roic: (d.ebit * (1 - d.aliquotaEfetiva)) / (d.dividaLiquida + d.patrimonioLiquido),
     alavancagem: d.dividaLiquida / d.ebitda,
+    endividamento: (d.ativoTotal - d.patrimonioLiquido) / d.ativoTotal,
   }
 }
 

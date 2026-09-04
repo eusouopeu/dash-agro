@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -12,8 +11,10 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { brf, copacol, anosComuns, indicadorPorAno, type Empresa } from '../data'
-import { ROWS, melhor, formatDias, formatX, formatBi } from '../format'
+import { formatDias, formatX, formatBi } from '../format'
+import { grupos } from '../painel'
 import { CicloWaterfall, dominioCiclo } from '../components/CicloWaterfall'
+import { ComparativoBarras } from '../components/ComparativoBarras'
 import { Card, TituloSecao, MolduraGrafico, TooltipCartao, EIXO, GRADE } from '../components/ui'
 
 const ANOS_SERIE = Array.from(
@@ -43,16 +44,10 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
     { metrica: 'ROIC', BRF: brfAtual.roic * 100, Copacol: copacolAtual.roic * 100 },
   ]
 
-  const destaques = useMemo(
-    () =>
-      ROWS.map((row) => ({
-        row,
-        anosGanhos: anosComuns.filter((a) =>
-          melhor(row, indicadorPorAno(copacol, a)[row.key] as number, indicadorPorAno(brf, a)[row.key] as number),
-        ),
-      })).filter((d) => d.anosGanhos.length > 0),
-    [],
-  )
+  const participantes = [
+    { empresa: brf, indicador: brfAtual },
+    { empresa: copacol, indicador: copacolAtual },
+  ]
 
   const receitaCresc = (empresa: Empresa) => {
     const atual = indicadorPorAno(empresa, ano)
@@ -239,79 +234,22 @@ export function Panorama({ ano, setAno }: { ano: number; setAno: (a: number) => 
             </ResponsiveContainer>
           </MolduraGrafico>
 
-          {/* Onde a Copacol vence */}
-          <Card className="p-5">
-            <h3 className="text-sm font-bold tracking-tight text-tinta">Onde a Copacol supera a BRF</h3>
-            <p className="mt-1 text-xs leading-relaxed text-cinza">
-              Indicadores em que a cooperativa fica à frente em pelo menos um exercício de {anosComuns[0]} a{' '}
-              {anosComuns[anosComuns.length - 1]}.
-            </p>
-            {destaques.length === 0 ? (
-              <p className="mt-4 text-sm text-cinza">Nenhum indicador nesse período.</p>
-            ) : (
-              <ul className="mt-4 divide-y divide-linha">
-                {destaques.map(({ row, anosGanhos }) => {
-                  const todos = anosGanhos.length === anosComuns.length
-                  return (
-                    <li key={row.key} className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
-                      <row.icon className="mt-0.5 h-4 w-4 shrink-0 text-brasa" aria-hidden="true" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-tinta">{row.label}</p>
-                        <p className="tabular font-mono text-[11px] text-cinza">
-                          {todos ? `todos os ${anosComuns.length} anos comparados` : anosGanhos.join(' · ')}
-                        </p>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-          </Card>
         </div>
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Recorte do ano                                                    */}
+      {/* Recorte do ano, por bloco temático                                */}
       {/* ---------------------------------------------------------------- */}
       <section>
         <TituloSecao
-          titulo={`Resumo de ${ano}`}
-          descricao="Os nove indicadores lado a lado. A tabela completa, ano a ano e ordenável, está na aba Indicadores."
+          titulo={`Indicadores de ${ano}`}
+          descricao="Quatro blocos temáticos. Indicadores que dependem de dados operacionais fora das demonstrações financeiras aparecem marcados como sem dado."
         />
-        <Card className="overflow-hidden">
-          <ul className="divide-y divide-linha">
-            {ROWS.map((row) => {
-              const b = brfAtual[row.key] as number
-              const c = copacolAtual[row.key] as number
-              const bGanha = melhor(row, b, c)
-              return (
-                <li key={row.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-3">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <row.icon className="h-4 w-4 shrink-0 text-cinza" aria-hidden="true" />
-                    <span className="truncate text-sm font-medium text-tinta">{row.label}</span>
-                  </div>
-                  {[
-                    { v: b, empresa: brf, ganha: bGanha },
-                    { v: c, empresa: copacol, ganha: !bGanha },
-                  ].map(({ v, empresa, ganha }) => (
-                    <div key={empresa.id} className="w-24 text-right sm:w-28">
-                      <p
-                        className="tabular font-mono text-sm font-semibold"
-                        style={{ color: ganha ? empresa.cor : 'var(--color-cinza)' }}
-                      >
-                        {row.format(v)}
-                      </p>
-                      <p className="font-mono text-[10px] uppercase tracking-wider text-cinza">
-                        {empresa.nomeCurto}
-                        {ganha && ' ·  melhor'}
-                      </p>
-                    </div>
-                  ))}
-                </li>
-              )
-            })}
-          </ul>
-        </Card>
+        <div className="grid gap-4 xl:grid-cols-2">
+          {grupos.map((grupo) => (
+            <ComparativoBarras key={grupo.id} grupo={grupo} participantes={participantes} ano={ano} />
+          ))}
+        </div>
       </section>
     </div>
   )

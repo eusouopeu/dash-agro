@@ -64,7 +64,7 @@ export function Metodologia() {
       <section>
         <TituloSecao
           titulo="Fórmulas"
-          descricao="Os dez indicadores calculados neste painel, com a definição exata usada, a unidade do resultado e o sentido da leitura."
+          descricao="Os indicadores calculados neste painel, com a definição exata usada, a unidade do resultado e o sentido da leitura. Indicadores que aparecem como sem dado no panorama não estão aqui — eles dependem de informação operacional que as demonstrações financeiras não trazem."
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {formulas.map((f) => (

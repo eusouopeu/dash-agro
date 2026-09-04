@@ -112,15 +112,6 @@ export function Sparkline({ empresa, dataKey }: { empresa: Empresa; dataKey: key
   )
 }
 
-/** Marca de vantagem — texto + forma, nunca só cor. */
-export function SeloMelhor() {
-  return (
-    <span className="ml-1.5 inline-flex shrink-0 items-center gap-1 rounded-[3px] bg-tinta px-1.5 py-px font-mono text-[9px] font-semibold uppercase tracking-wider text-papel">
-      melhor
-    </span>
-  )
-}
-
 export const EIXO = {
   tick: { fontSize: 11, fill: '#737373', fontFamily: 'IBM Plex Mono, monospace' },
   axisLine: { stroke: '#e3ded3' },

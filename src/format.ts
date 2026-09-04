@@ -51,8 +51,3 @@ export const ROWS: IndicatorRow[] = [
   { key: 'roic', label: 'ROIC', curto: 'ROIC', icon: ArrowTrendingUpIcon, format: formatPct, menorMelhor: false },
   { key: 'alavancagem', label: 'Alavancagem', curto: 'Dív.Líq./EBITDA', icon: ShieldExclamationIcon, format: formatX, menorMelhor: true },
 ]
-
-/** `true` se `a` é melhor que `b` para esse indicador. */
-export function melhor(row: IndicatorRow, a: number, b: number) {
-  return row.menorMelhor ? a < b : a > b
-}

@@ -95,6 +95,15 @@ export const formulas: Formula[] = [
     melhor: 'maior',
   },
   {
+    key: 'margemOperacional',
+    nome: 'Margem Operacional',
+    numerador: 'EBIT',
+    denominador: 'Receita Líquida',
+    unidade: '%',
+    leitura: 'Quanto sobra da receita depois dos custos e despesas da operação, antes de juros e impostos.',
+    melhor: 'maior',
+  },
+  {
     key: 'margemEbitda',
     nome: 'Margem EBITDA',
     numerador: 'EBITDA',
@@ -112,6 +121,15 @@ export const formulas: Formula[] = [
     unidade: '%',
     leitura: 'Quanto o capital investido no negócio rende depois de impostos.',
     melhor: 'maior',
+  },
+  {
+    key: 'endividamento',
+    nome: 'Índice de Endividamento',
+    numerador: 'Ativo Total − Patrimônio Líquido',
+    denominador: 'Ativo Total',
+    unidade: '%',
+    leitura: 'Quanto do ativo é financiado por capital de terceiros em vez de capital próprio.',
+    melhor: 'menor',
   },
   {
     key: 'alavancagem',
