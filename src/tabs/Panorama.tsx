@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -77,6 +78,8 @@ export function Panorama({
   base: BaseCalculo
   setBase: (b: BaseCalculo) => void
 }) {
+  const [empresaCicloId, setEmpresaCicloId] = useState<Empresa['id']>(brf.id)
+
   const atuais = empresas.map((empresa) => ({
     empresa,
     indicador: comBaseCalculo(indicadorPorAno(empresa, ano), base),
@@ -230,10 +233,39 @@ export function Panorama({
           descricao={`Cascata de PME + PMR − PMP em ${ano}, a origem dos dias de ciclo de cada empresa.`}
         />
         <Card className="overflow-hidden">
-          <div className="grid gap-x-8 gap-y-10 p-6 sm:p-8 md:grid-cols-2 xl:grid-cols-3">
-            {atuais.map(({ empresa, indicador }) => (
-              <CicloWaterfall key={empresa.id} empresa={empresa} indicador={indicador} dominio={dominio} />
-            ))}
+          <div className="flex flex-wrap gap-2 border-b border-linha p-4">
+            {atuais.map(({ empresa }) => {
+              const ativa = empresa.id === empresaCicloId
+              return (
+                <button
+                  key={empresa.id}
+                  type="button"
+                  onClick={() => setEmpresaCicloId(empresa.id)}
+                  aria-pressed={ativa}
+                  className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-xs font-semibold transition-colors ${
+                    ativa ? 'border-transparent text-papel' : 'border-linha-forte bg-carta text-cinza hover:text-tinta'
+                  }`}
+                  style={ativa ? { backgroundColor: empresa.cor } : undefined}
+                >
+                  <span
+                    className="inline-block h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: ativa ? 'currentColor' : empresa.cor }}
+                    aria-hidden="true"
+                  />
+                  {empresa.nomeCurto}
+                </button>
+              )
+            })}
+          </div>
+          <div className="p-6 sm:p-8">
+            {(() => {
+              const selecionada = atuais.find(({ empresa }) => empresa.id === empresaCicloId) ?? atuais[0]
+              return (
+                <div className="mx-auto max-w-sm">
+                  <CicloWaterfall empresa={selecionada.empresa} indicador={selecionada.indicador} dominio={dominio} />
+                </div>
+              )
+            })()}
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-linha bg-papel px-6 py-3 sm:px-8">
             <span className="flex items-center gap-1.5 font-mono text-[11px] text-cinza">

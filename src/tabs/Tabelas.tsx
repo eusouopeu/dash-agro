@@ -1,12 +1,11 @@
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { empresas, todosAnos, indicadorOpcional, comBaseCalculo, type Empresa, type BaseCalculo } from '../data'
-import { ROWS, formatDelta, type IndicatorRow } from '../format'
+import { ROWS, type IndicatorRow } from '../format'
 import { Card, TituloSecao, InfoPopover, SeletorBaseCalculo } from '../components/ui'
 
 interface Celula {
   row: IndicatorRow
   valor: number | null
-  delta: number | null
 }
 
 interface Linha {
@@ -41,19 +40,13 @@ function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
 
   const linhas: Linha[] = empresas.map((empresa) => {
     const bruto = indicadorOpcional(empresa, ano)
-    const brutoAnterior = indicadorOpcional(empresa, ano - 1)
     const atual = bruto ? comBaseCalculo(bruto, base) : null
-    const anterior = brutoAnterior ? comBaseCalculo(brutoAnterior, base) : null
     return {
       empresa,
-      celulas: ROWS.map((row) => {
-        const valor = atual ? (atual[row.key] as number) : null
-        return {
-          row,
-          valor,
-          delta: atual && anterior ? valor! - (anterior[row.key] as number) : null,
-        }
-      }),
+      celulas: ROWS.map((row) => ({
+        row,
+        valor: atual ? (atual[row.key] as number) : null,
+      })),
     }
   })
 
@@ -81,18 +74,15 @@ function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] border-collapse text-sm">
-          <caption className="sr-only">
-            Indicadores operacionais das três empresas no exercício de {ano}, com a variação contra o exercício
-            anterior.
-          </caption>
+        <table className="w-full min-w-[1200px] border-collapse text-sm">
+          <caption className="sr-only">Indicadores operacionais das três empresas no exercício de {ano}.</caption>
           <thead>
             <tr className="border-b border-linha">
-              <th scope="col" className="px-6 py-3 text-left font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-cinza">
+              <th scope="col" className="w-40 px-6 py-3 text-left font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-cinza">
                 Instituição
               </th>
               {ROWS.map((row) => (
-                <th key={row.key} scope="col" className="px-4 py-3 text-right">
+                <th key={row.key} scope="col" className="w-28 whitespace-nowrap px-4 py-3 text-right">
                   <span className="flex items-center justify-end gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-cinza">
                     {row.curto}
                     <InfoPopover titulo={row.label} formula={row.formula} explicacao={row.explicacao} />
@@ -107,21 +97,16 @@ function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
           <tbody>
             {linhas.map((l) => (
               <tr key={l.empresa.id} className="relative border-b border-linha last:border-0 hover:bg-papel">
-                <th scope="row" className="relative px-6 py-4 text-left font-normal">
+                <th scope="row" className="relative whitespace-nowrap px-6 py-4 text-left font-normal">
                   <span className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: l.empresa.cor }} aria-hidden="true" />
                   <span className="font-semibold text-tinta">{l.empresa.nomeCurto}</span>
                 </th>
-                {l.celulas.map(({ row, valor, delta }) => (
-                  <td key={row.key} className="px-4 py-4 text-right">
+                {l.celulas.map(({ row, valor }) => (
+                  <td key={row.key} className="whitespace-nowrap px-4 py-4 text-right">
                     {valor === null ? (
                       <span className="font-mono text-sm text-cinza">—</span>
                     ) : (
-                      <span>
-                        <span className="tabular block font-mono text-sm font-semibold text-tinta">{row.format(valor)}</span>
-                        <span className="tabular block font-mono text-[10px] text-cinza">
-                          {delta === null ? `sem ${ano - 1}` : `${formatDelta(delta, row.format)} vs. ${ano - 1}`}
-                        </span>
-                      </span>
+                      <span className="tabular font-mono text-sm font-semibold text-tinta">{row.format(valor)}</span>
                     )}
                   </td>
                 ))}
@@ -140,7 +125,7 @@ export function Tabelas({ base, setBase }: { base: BaseCalculo; setBase: (b: Bas
       <div className="flex flex-wrap items-start justify-between gap-6">
         <TituloSecao
           titulo="Indicadores por exercício"
-          descricao="Uma tabela por ano, com o valor de cada indicador e a variação contra o exercício anterior."
+          descricao="Uma tabela por ano, com o valor de cada indicador para as três empresas."
         />
         <SeletorBaseCalculo valor={base} onChange={setBase} />
       </div>
