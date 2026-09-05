@@ -47,6 +47,9 @@ const FALTA_CAPEX =
 const FALTA_OPERACIONAL =
   'Disponível para a C.Vale em 2022-2025, dos Relatórios Anuais. BRF e Copacol dependem de relatórios operacionais que não estão nesta base (a Copacol só tem esse dado em 2025, fora da faixa comparável para BRF).'
 
+const FALTA_RESULTADO_LIQUIDO =
+  'Disponível só para a BRF, extraído da DFP (DRE, conta 3.11). Para Copacol e C.Vale falta extrair a linha de Sobras/Perdas (ou Resultado Líquido) do exercício dos relatórios financeiros.'
+
 export const grupos: GrupoPainel[] = [
   {
     id: 'eficiencia',
@@ -91,6 +94,15 @@ export const grupos: GrupoPainel[] = [
         formula: 'Volume recebido ÷ Capacidade estática de armazenagem',
         explicacao: 'Quanto maior a utilização, mais perto do limite físico a capacidade de armazenagem está operando.',
         faltaDado: FALTA_OPERACIONAL,
+      },
+      {
+        key: 'margemOperacional',
+        label: 'Margem operacional',
+        valor: (i) => i.margemOperacional,
+        format: formatPct,
+        menorMelhor: false,
+        formula: 'EBIT ÷ Receita Líquida',
+        explicacao: 'Quanto maior a margem operacional, maior a parcela da receita que sobra depois dos custos e despesas operacionais.',
       },
     ],
   },
@@ -153,13 +165,14 @@ export const grupos: GrupoPainel[] = [
     descricao: 'Quanto sobra da receita e quanto o capital investido rende.',
     metricas: [
       {
-        key: 'margemOperacional',
-        label: 'Margem operacional',
-        valor: (i) => i.margemOperacional,
+        key: 'margemLiquida',
+        label: 'Margem líquida',
+        valor: (i) => i.margemLiquida,
         format: formatPct,
         menorMelhor: false,
-        formula: 'EBIT ÷ Receita Líquida',
-        explicacao: 'Quanto maior a margem operacional, maior a parcela da receita que sobra depois dos custos e despesas operacionais.',
+        formula: 'Resultado Líquido ÷ Receita Líquida',
+        explicacao: 'Quanto maior a margem líquida, maior a parcela da receita que sobra depois de juros, impostos e todas as despesas — o que efetivamente sobrou no exercício.',
+        faltaDado: FALTA_RESULTADO_LIQUIDO,
       },
       {
         key: 'margemEbitda',
@@ -169,6 +182,26 @@ export const grupos: GrupoPainel[] = [
         menorMelhor: false,
         formula: 'EBITDA ÷ Receita Líquida',
         explicacao: 'Quanto maior a margem EBITDA, maior a geração de caixa operacional para cada real de receita, antes de juros, impostos, depreciação e amortização.',
+      },
+      {
+        key: 'roe',
+        label: 'ROE',
+        valor: (i) => i.roe,
+        format: formatPct,
+        menorMelhor: false,
+        formula: 'Resultado Líquido ÷ Patrimônio Líquido',
+        explicacao: 'Quanto maior o ROE, maior o retorno gerado sobre o capital próprio — o que sobrou para quem é dono do negócio (acionista ou cooperado).',
+        faltaDado: FALTA_RESULTADO_LIQUIDO,
+      },
+      {
+        key: 'roa',
+        label: 'ROA',
+        valor: (i) => i.roa,
+        format: formatPct,
+        menorMelhor: false,
+        formula: 'Resultado Líquido ÷ Ativo Total',
+        explicacao: 'Quanto maior o ROA, maior o retorno gerado sobre todo o ativo da empresa, incluindo a parte financiada por terceiros.',
+        faltaDado: FALTA_RESULTADO_LIQUIDO,
       },
       {
         key: 'roic',
@@ -188,17 +221,17 @@ export const grupos: GrupoPainel[] = [
     metricas: [
       {
         key: 'capexReceita',
-        label: 'CAPEX sobre receita',
+        label: 'Intensidade do CAPEX',
         valor: (i) => i.capexSobreReceita,
         format: formatPct,
         menorMelhor: false,
         formula: 'CAPEX ÷ Receita Líquida',
-        explicacao: 'Quanto maior o CAPEX sobre receita, maior a fatia da receita reinvestida em ativo fixo no ano.',
+        explicacao: 'Quanto maior a intensidade do CAPEX, maior a fatia da receita reinvestida em ativo fixo no ano.',
         faltaDado: FALTA_CAPEX,
       },
       {
         key: 'capexDepreciacao',
-        label: 'CAPEX sobre depreciação',
+        label: 'CAPEX / Depreciação',
         valor: (i) => i.capexSobreDepreciacao,
         format: formatX,
         menorMelhor: false,
@@ -207,22 +240,22 @@ export const grupos: GrupoPainel[] = [
         faltaDado: FALTA_CAPEX,
       },
       {
-        key: 'endividamento',
-        label: 'Índice de endividamento',
-        valor: (i) => i.endividamento,
-        format: formatPct,
-        menorMelhor: true,
-        formula: '(Ativo Total − Patrimônio Líquido) ÷ Ativo Total',
-        explicacao: 'Quanto menor o endividamento, menor a fatia do ativo total financiada por capital de terceiros.',
-      },
-      {
         key: 'alavancagem',
-        label: 'Dívida líquida sobre EBITDA',
+        label: 'Índice de Alavancagem Financeira',
         valor: (i) => i.alavancagem,
         format: formatX,
         menorMelhor: true,
         formula: 'Dívida Líquida ÷ EBITDA',
-        explicacao: 'Quanto menor a alavancagem, menos anos de geração de caixa operacional seriam necessários para quitar a dívida líquida.',
+        explicacao: 'Quanto menor a alavancagem financeira, menos anos de geração de caixa operacional seriam necessários para quitar a dívida líquida.',
+      },
+      {
+        key: 'endividamento',
+        label: 'Índice de Endividamento Geral',
+        valor: (i) => i.endividamento,
+        format: formatPct,
+        menorMelhor: true,
+        formula: '(Ativo Total − Patrimônio Líquido) ÷ Ativo Total',
+        explicacao: 'Quanto menor o endividamento geral, menor a fatia do ativo total financiada por capital de terceiros.',
       },
     ],
   },

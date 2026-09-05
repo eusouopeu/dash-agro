@@ -127,12 +127,12 @@ export const ROWS: IndicatorRow[] = [
   },
   {
     key: 'alavancagem',
-    label: 'Alavancagem',
+    label: 'Índice de Alavancagem Financeira',
     curto: 'Dív.Líq./EBITDA',
     icon: ShieldExclamationIcon,
     format: formatX,
     menorMelhor: true,
     formula: 'Dívida Líquida ÷ EBITDA',
-    explicacao: 'Quanto menor a alavancagem, menos anos de geração de caixa operacional seriam necessários para quitar a dívida líquida.',
+    explicacao: 'Quanto menor a alavancagem financeira, menos anos de geração de caixa operacional seriam necessários para quitar a dívida líquida.',
   },
 ]

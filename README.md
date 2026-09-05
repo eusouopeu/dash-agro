@@ -31,13 +31,15 @@ inferior só com ícones. Cada aba tem URL própria (`#panorama`, `#indicadores`
 
 **Cobertura completa** — Giro do Estoque · PME · PMR · PMP · Ciclo Financeiro ·
 NCG · NCG sobre Receita · Conversão de Caixa (FCO/EBITDA) · Giro do Ativo ·
-Margem Operacional · Margem EBITDA · ROIC · Índice de Endividamento ·
-Alavancagem (Dív. Líq./EBITDA).
+Margem Operacional · Margem EBITDA · ROIC · Índice de Endividamento Geral ·
+Índice de Alavancagem Financeira.
 
-**Cobertura parcial** — CAPEX/Receita e CAPEX/Depreciação (só C.Vale); Volume
-recebido, Receita por Funcionário e Utilização da Capacidade de Armazenagem (só
-C.Vale, 2022–2025). Onde falta a base, o painel mostra "sem dado" e diz o que
-precisa ser extraído. Nada é estimado.
+**Cobertura parcial** — Margem Líquida, ROE e ROA (só BRF, falta extrair a
+linha de Resultado Líquido/Sobras de Copacol e C.Vale); Intensidade do CAPEX e
+CAPEX/Depreciação (só C.Vale); Volume recebido, Receita por Funcionário e
+Utilização da Capacidade de Armazenagem (só C.Vale, 2022–2025). Onde falta a
+base, o painel mostra "sem dado" e diz o que precisa ser extraído. Nada é
+estimado.
 
 Cada indicador tem um botão "?" ao lado do nome, com a fórmula exata e uma
 frase no formato "quanto maior/menor o indicador, ..." explicando o sentido —

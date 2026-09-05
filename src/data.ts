@@ -42,6 +42,8 @@ export interface AnnualFinancials {
   // `null` = a base usada para essa empresa ainda não traz o dado. Nunca
   // estimado: o painel mostra "sem dado" e diz o que falta extrair.
 
+  /** Lucro/Prejuízo Consolidado do Período (inclui não controladores) — DRE, ou "Sobras/Perdas" numa cooperativa. */
+  resultadoLiquido: number | null
   /** Aquisição de imobilizado + intangível, das atividades de investimento da DFC. */
   capex: number | null
   /** Depreciação + amortização do exercício, da DFC. */
@@ -75,11 +77,11 @@ const SEM_OPERACIONAL = {
 // ressalvas em `fontes.brf.ressalvas`.
 // ---------------------------------------------------------------------------
 export const brfBruto: AnnualFinancials[] = [
-  { ano: 2021, receitaLiquida: 48_343_305, cmv: 38_177_609, estoques: 9_654_870, contasAReceber: 4_039_155, fornecedores: 14_411_927, ativoTotal: 55_903_387, patrimonioLiquido: 8_825_623, dividaLiquida: 17_927_210, ebitda: 5_756_141, ebit: 3_009_787, fluxoCaixaOperacional: 3_923_636, aliquotaEfetiva: 0.01587, ...SEM_OPERACIONAL },
-  { ano: 2022, receitaLiquida: 53_805_028, cmv: 45_672_376, estoques: 8_660_891, contasAReceber: 4_187_756, fornecedores: 14_805_629, ativoTotal: 57_854_447, patrimonioLiquido: 11_822_869, dividaLiquida: 15_386_071, ebitda: 2_855_416, ebit: -136_289, fluxoCaixaOperacional: 1_876_384, aliquotaEfetiva: -0.1018, ...SEM_OPERACIONAL },
-  { ano: 2023, receitaLiquida: 53_615_440, cmv: 44_781_739, estoques: 6_628_890, contasAReceber: 4_766_071, fornecedores: 13_536_332, ativoTotal: 57_272_090, patrimonioLiquido: 15_643_656, dividaLiquida: 10_830_884, ebitda: 4_060_923, ebit: 836_141, fluxoCaixaOperacional: 3_939_397, aliquotaEfetiva: 0.0584, ...SEM_OPERACIONAL },
-  { ano: 2024, receitaLiquida: 61_379_038, cmv: 45_543_222, estoques: 6_728_002, contasAReceber: 6_075_013, fornecedores: 14_573_097, ativoTotal: 62_675_076, patrimonioLiquido: 16_499_204, dividaLiquida: 9_575_184, ebitda: 10_364_890, ebit: 6_840_386, fluxoCaixaOperacional: 10_776_742, aliquotaEfetiva: 0.2689, ...SEM_OPERACIONAL },
-  { ano: 2025, receitaLiquida: 65_048_731, cmv: 48_642_936, estoques: 7_496_185, contasAReceber: 4_239_709, fornecedores: 14_567_758, ativoTotal: 68_259_376, patrimonioLiquido: 15_030_148, dividaLiquida: 14_534_904, ebitda: 10_209_501, ebit: 6_645_756, fluxoCaixaOperacional: 10_521_776, aliquotaEfetiva: 0.198464, ...SEM_OPERACIONAL },
+  { ano: 2021, receitaLiquida: 48_343_305, cmv: 38_177_609, estoques: 9_654_870, contasAReceber: 4_039_155, fornecedores: 14_411_927, ativoTotal: 55_903_387, patrimonioLiquido: 8_825_623, dividaLiquida: 17_927_210, ebitda: 5_756_141, ebit: 3_009_787, fluxoCaixaOperacional: 3_923_636, aliquotaEfetiva: 0.01587, resultadoLiquido: 437_384, ...SEM_OPERACIONAL },
+  { ano: 2022, receitaLiquida: 53_805_028, cmv: 45_672_376, estoques: 8_660_891, contasAReceber: 4_187_756, fornecedores: 14_805_629, ativoTotal: 57_854_447, patrimonioLiquido: 11_822_869, dividaLiquida: 15_386_071, ebitda: 2_855_416, ebit: -136_289, fluxoCaixaOperacional: 1_876_384, aliquotaEfetiva: -0.1018, resultadoLiquido: -3_141_626, ...SEM_OPERACIONAL },
+  { ano: 2023, receitaLiquida: 53_615_440, cmv: 44_781_739, estoques: 6_628_890, contasAReceber: 4_766_071, fornecedores: 13_536_332, ativoTotal: 57_272_090, patrimonioLiquido: 15_643_656, dividaLiquida: 10_830_884, ebitda: 4_060_923, ebit: 836_141, fluxoCaixaOperacional: 3_939_397, aliquotaEfetiva: 0.0584, resultadoLiquido: -1_868_852, ...SEM_OPERACIONAL },
+  { ano: 2024, receitaLiquida: 61_379_038, cmv: 45_543_222, estoques: 6_728_002, contasAReceber: 6_075_013, fornecedores: 14_573_097, ativoTotal: 62_675_076, patrimonioLiquido: 16_499_204, dividaLiquida: 9_575_184, ebitda: 10_364_890, ebit: 6_840_386, fluxoCaixaOperacional: 10_776_742, aliquotaEfetiva: 0.2689, resultadoLiquido: 3_691_904, ...SEM_OPERACIONAL },
+  { ano: 2025, receitaLiquida: 65_048_731, cmv: 48_642_936, estoques: 7_496_185, contasAReceber: 4_239_709, fornecedores: 14_567_758, ativoTotal: 68_259_376, patrimonioLiquido: 15_030_148, dividaLiquida: 14_534_904, ebitda: 10_209_501, ebit: 6_645_756, fluxoCaixaOperacional: 10_521_776, aliquotaEfetiva: 0.198464, resultadoLiquido: 3_288_189, ...SEM_OPERACIONAL },
 ]
 
 // ---------------------------------------------------------------------------
@@ -90,11 +92,11 @@ export const brfBruto: AnnualFinancials[] = [
 // Líquida; "Dispêndios e custos das vendas e serviços" tratado como CMV.
 // ---------------------------------------------------------------------------
 export const copacolBruto: AnnualFinancials[] = [
-  { ano: 2021, receitaLiquida: 7_445_178, cmv: 6_121_951, estoques: 1_830_706, contasAReceber: 911_563, fornecedores: 516_514, ativoTotal: 7_762_351, patrimonioLiquido: 2_198_493, dividaLiquida: 1_761_294, ebitda: 845_406, ebit: 604_290, fluxoCaixaOperacional: -135_788, aliquotaEfetiva: 0.0306, ...SEM_OPERACIONAL },
-  { ano: 2022, receitaLiquida: 8_805_180, cmv: 6_899_673, estoques: 1_884_438, contasAReceber: 1_126_686, fornecedores: 519_323, ativoTotal: 8_661_355, patrimonioLiquido: 2_453_037, dividaLiquida: 2_025_643, ebitda: 1_007_553, ebit: 699_937, fluxoCaixaOperacional: 814_083, aliquotaEfetiva: 0.0670, ...SEM_OPERACIONAL },
-  { ano: 2023, receitaLiquida: 9_424_815, cmv: 7_643_347, estoques: 1_512_424, contasAReceber: 1_285_222, fornecedores: 556_605, ativoTotal: 8_786_550, patrimonioLiquido: 2_901_037, dividaLiquida: 1_314_869, ebitda: 1_205_591, ebit: 855_858, fluxoCaixaOperacional: 1_444_053, aliquotaEfetiva: 0.0199, ...SEM_OPERACIONAL },
-  { ano: 2024, receitaLiquida: 10_192_495, cmv: 7_800_110, estoques: 1_617_505, contasAReceber: 1_492_180, fornecedores: 664_100, ativoTotal: 9_994_085, patrimonioLiquido: 3_560_004, dividaLiquida: 1_099_461, ebitda: 1_464_051, ebit: 1_054_884, fluxoCaixaOperacional: 1_660_816, aliquotaEfetiva: 0.0150, ...SEM_OPERACIONAL },
-  { ano: 2025, receitaLiquida: 10_492_542, cmv: 8_354_180, estoques: 1_793_789, contasAReceber: 1_385_617, fornecedores: 709_039, ativoTotal: 10_448_395, patrimonioLiquido: 4_295_438, dividaLiquida: 623_529, ebitda: 1_418_787, ebit: 1_014_487, fluxoCaixaOperacional: 1_965_864, aliquotaEfetiva: 0.0349, capex: null, depreciacaoAmortizacao: null, funcionarios: 16_800, volumeToneladas: 2_372_000, capacidadeArmazenagemToneladas: null },
+  { ano: 2021, receitaLiquida: 7_445_178, cmv: 6_121_951, estoques: 1_830_706, contasAReceber: 911_563, fornecedores: 516_514, ativoTotal: 7_762_351, patrimonioLiquido: 2_198_493, dividaLiquida: 1_761_294, ebitda: 845_406, ebit: 604_290, fluxoCaixaOperacional: -135_788, aliquotaEfetiva: 0.0306, resultadoLiquido: null, ...SEM_OPERACIONAL },
+  { ano: 2022, receitaLiquida: 8_805_180, cmv: 6_899_673, estoques: 1_884_438, contasAReceber: 1_126_686, fornecedores: 519_323, ativoTotal: 8_661_355, patrimonioLiquido: 2_453_037, dividaLiquida: 2_025_643, ebitda: 1_007_553, ebit: 699_937, fluxoCaixaOperacional: 814_083, aliquotaEfetiva: 0.0670, resultadoLiquido: null, ...SEM_OPERACIONAL },
+  { ano: 2023, receitaLiquida: 9_424_815, cmv: 7_643_347, estoques: 1_512_424, contasAReceber: 1_285_222, fornecedores: 556_605, ativoTotal: 8_786_550, patrimonioLiquido: 2_901_037, dividaLiquida: 1_314_869, ebitda: 1_205_591, ebit: 855_858, fluxoCaixaOperacional: 1_444_053, aliquotaEfetiva: 0.0199, resultadoLiquido: null, ...SEM_OPERACIONAL },
+  { ano: 2024, receitaLiquida: 10_192_495, cmv: 7_800_110, estoques: 1_617_505, contasAReceber: 1_492_180, fornecedores: 664_100, ativoTotal: 9_994_085, patrimonioLiquido: 3_560_004, dividaLiquida: 1_099_461, ebitda: 1_464_051, ebit: 1_054_884, fluxoCaixaOperacional: 1_660_816, aliquotaEfetiva: 0.0150, resultadoLiquido: null, ...SEM_OPERACIONAL },
+  { ano: 2025, receitaLiquida: 10_492_542, cmv: 8_354_180, estoques: 1_793_789, contasAReceber: 1_385_617, fornecedores: 709_039, ativoTotal: 10_448_395, patrimonioLiquido: 4_295_438, dividaLiquida: 623_529, ebitda: 1_418_787, ebit: 1_014_487, fluxoCaixaOperacional: 1_965_864, aliquotaEfetiva: 0.0349, resultadoLiquido: null, capex: null, depreciacaoAmortizacao: null, funcionarios: 16_800, volumeToneladas: 2_372_000, capacidadeArmazenagemToneladas: null },
 ]
 
 // ---------------------------------------------------------------------------
@@ -122,10 +124,10 @@ export const copacolBruto: AnnualFinancials[] = [
 //  - Estoques = linha "Estoques"; o Ativo biológico fica de fora
 // ---------------------------------------------------------------------------
 export const cvaleBruto: AnnualFinancials[] = [
-  { ano: 2022, receitaLiquida: 22_436_067, cmv: 18_760_922, estoques: 4_380_866, contasAReceber: 2_199_502, fornecedores: 3_703_119, ativoTotal: 13_510_253, patrimonioLiquido: 3_391_491, dividaLiquida: 3_813_762, ebitda: 1_309_564, ebit: 1_102_827, fluxoCaixaOperacional: 304_357, aliquotaEfetiva: 0.034383, capex: 686_263, depreciacaoAmortizacao: 206_737, funcionarios: 13_668, volumeToneladas: 4_195_769, capacidadeArmazenagemToneladas: 2_938_322 },
-  { ano: 2023, receitaLiquida: 23_780_553, cmv: 20_597_885, estoques: 3_354_172, contasAReceber: 2_671_909, fornecedores: 3_567_305, ativoTotal: 13_225_325, patrimonioLiquido: 3_701_919, dividaLiquida: 3_439_150, ebitda: 1_126_148, ebit: 891_012, fluxoCaixaOperacional: 1_264_714, aliquotaEfetiva: 0.185503, capex: 958_213, depreciacaoAmortizacao: 235_136, funcionarios: 13_886, volumeToneladas: 6_136_109, capacidadeArmazenagemToneladas: 3_326_366 },
-  { ano: 2024, receitaLiquida: 21_387_940, cmv: 17_895_743, estoques: 3_025_500, contasAReceber: 2_278_011, fornecedores: 3_289_943, ativoTotal: 14_004_920, patrimonioLiquido: 4_338_354, dividaLiquida: 3_414_659, ebitda: 1_503_818, ebit: 1_156_920, fluxoCaixaOperacional: 1_025_867, aliquotaEfetiva: 0.054122, capex: 839_042, depreciacaoAmortizacao: 346_898, funcionarios: 15_018, volumeToneladas: 5_174_053, capacidadeArmazenagemToneladas: 3_219_612 },
-  { ano: 2025, receitaLiquida: 24_647_822, cmv: 20_761_621, estoques: 2_861_511, contasAReceber: 2_899_368, fornecedores: 3_322_422, ativoTotal: 16_251_612, patrimonioLiquido: 5_104_495, dividaLiquida: 3_655_461, ebitda: 1_820_765, ebit: 1_464_398, fluxoCaixaOperacional: 615_027, aliquotaEfetiva: 0.123733, capex: 970_737, depreciacaoAmortizacao: 356_367, funcionarios: 15_346, volumeToneladas: 6_560_771, capacidadeArmazenagemToneladas: 3_413_927 },
+  { ano: 2022, receitaLiquida: 22_436_067, cmv: 18_760_922, estoques: 4_380_866, contasAReceber: 2_199_502, fornecedores: 3_703_119, ativoTotal: 13_510_253, patrimonioLiquido: 3_391_491, dividaLiquida: 3_813_762, ebitda: 1_309_564, ebit: 1_102_827, fluxoCaixaOperacional: 304_357, aliquotaEfetiva: 0.034383, resultadoLiquido: null, capex: 686_263, depreciacaoAmortizacao: 206_737, funcionarios: 13_668, volumeToneladas: 4_195_769, capacidadeArmazenagemToneladas: 2_938_322 },
+  { ano: 2023, receitaLiquida: 23_780_553, cmv: 20_597_885, estoques: 3_354_172, contasAReceber: 2_671_909, fornecedores: 3_567_305, ativoTotal: 13_225_325, patrimonioLiquido: 3_701_919, dividaLiquida: 3_439_150, ebitda: 1_126_148, ebit: 891_012, fluxoCaixaOperacional: 1_264_714, aliquotaEfetiva: 0.185503, resultadoLiquido: null, capex: 958_213, depreciacaoAmortizacao: 235_136, funcionarios: 13_886, volumeToneladas: 6_136_109, capacidadeArmazenagemToneladas: 3_326_366 },
+  { ano: 2024, receitaLiquida: 21_387_940, cmv: 17_895_743, estoques: 3_025_500, contasAReceber: 2_278_011, fornecedores: 3_289_943, ativoTotal: 14_004_920, patrimonioLiquido: 4_338_354, dividaLiquida: 3_414_659, ebitda: 1_503_818, ebit: 1_156_920, fluxoCaixaOperacional: 1_025_867, aliquotaEfetiva: 0.054122, resultadoLiquido: null, capex: 839_042, depreciacaoAmortizacao: 346_898, funcionarios: 15_018, volumeToneladas: 5_174_053, capacidadeArmazenagemToneladas: 3_219_612 },
+  { ano: 2025, receitaLiquida: 24_647_822, cmv: 20_761_621, estoques: 2_861_511, contasAReceber: 2_899_368, fornecedores: 3_322_422, ativoTotal: 16_251_612, patrimonioLiquido: 5_104_495, dividaLiquida: 3_655_461, ebitda: 1_820_765, ebit: 1_464_398, fluxoCaixaOperacional: 615_027, aliquotaEfetiva: 0.123733, resultadoLiquido: null, capex: 970_737, depreciacaoAmortizacao: 356_367, funcionarios: 15_346, volumeToneladas: 6_560_771, capacidadeArmazenagemToneladas: 3_413_927 },
 ]
 
 export interface AnnualIndicators extends AnnualFinancials {
@@ -143,6 +145,11 @@ export interface AnnualIndicators extends AnnualFinancials {
   alavancagem: number // Dívida Líquida / EBITDA (x)
   endividamento: number // (Ativo Total − Patrimônio Líquido) / Ativo Total — quanto do ativo é financiado por terceiros (fração)
   conversaoCaixa: number // Fluxo de Caixa Operacional / EBITDA (x)
+
+  // Derivados do Resultado Líquido — `null` onde a base não traz essa linha.
+  margemLiquida: number | null // Resultado Líquido / Receita Líquida (fração)
+  roe: number | null // Resultado Líquido / Patrimônio Líquido (fração)
+  roa: number | null // Resultado Líquido / Ativo Total (fração)
 
   // Variante "saldo médio" de PME/PMR/PMP/Giro/Ciclo — média entre o saldo do
   // exercício e o do exercício anterior, em vez do saldo final isolado.
@@ -204,6 +211,9 @@ function computarIndicadores(d: AnnualFinancials, anterior: AnnualFinancials | n
     alavancagem: d.dividaLiquida / d.ebitda,
     endividamento: (d.ativoTotal - d.patrimonioLiquido) / d.ativoTotal,
     conversaoCaixa: d.fluxoCaixaOperacional / d.ebitda,
+    margemLiquida: d.resultadoLiquido === null ? null : d.resultadoLiquido / d.receitaLiquida,
+    roe: d.resultadoLiquido === null ? null : d.resultadoLiquido / d.patrimonioLiquido,
+    roa: d.resultadoLiquido === null ? null : d.resultadoLiquido / d.ativoTotal,
     capexSobreReceita: d.capex === null ? null : d.capex / d.receitaLiquida,
     capexSobreDepreciacao:
       d.capex === null || d.depreciacaoAmortizacao === null ? null : d.capex / d.depreciacaoAmortizacao,
@@ -326,9 +336,10 @@ export const fontes = {
     empresa: 'BRF S.A. (B3: BRFS3), CNPJ 01.838.723/0001-27, CD_CVM 016292',
     origem: 'CVM — Dados Abertos, Demonstrações Financeiras Padronizadas (DFP), demonstrações CONSOLIDADAS',
     url: 'https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/',
-    base: 'DFP consolidada de cada exercício (arquivo dfp_cia_aberta_{ano}.zip, ORDEM_EXERC = ÚLTIMO — o sufixo do arquivo é o ano do próprio exercício, não o ano de arquivamento) — contas BPA 1.01.03.01/1.01.04/1, BPP 2.01.02/2.03/2.01.04/2.02.01, DRE 3.01/3.02/3.05/3.07/3.08, DFC_MI 6.01',
+    base: 'DFP consolidada de cada exercício (arquivo dfp_cia_aberta_{ano}.zip, ORDEM_EXERC = ÚLTIMO — o sufixo do arquivo é o ano do próprio exercício, não o ano de arquivamento) — contas BPA 1.01.03.01/1.01.04/1, BPP 2.01.02/2.03/2.01.04/2.02.01, DRE 3.01/3.02/3.05/3.07/3.08/3.11, DFC_MI 6.01',
     ressalvas: [
       'EBITDA e alíquota efetiva de IR/CSLL não são linhas formais do DFP nem valores divulgados pela própria BRF nesse formato — foram derivados (EBITDA = EBIT + Depreciação/Amortização do DFC; alíquota = (IR+CSLL)/Resultado Antes dos Tributos).',
+      'Resultado Líquido usa a conta DRE 3.11 "Lucro/Prejuízo Consolidado do Período", que inclui a parcela atribuída a não controladores — mesma base consolidada do Patrimônio Líquido usado no ROE, para manter numerador e denominador na mesma convenção.',
       'Dívida Líquida não é uma linha do DFP — derivada como Dívida Bruta (empréstimos, financiamentos e debêntures, circulante + não circulante) − Caixa e Equivalentes − Aplicações Financeiras de curto prazo.',
       'Há divergência entre o valor "como originalmente arquivado" e o comparativo republicado no ano seguinte em: Fornecedores/Dívida Bruta de 2024 (possivelmente ligada a reclassificações da fusão BRF–Marfrig). Os dados aqui usam sempre o valor "como originalmente arquivado".',
       'Patrimônio Líquido inclui participação de acionistas não controladores (minoritários).',
@@ -365,9 +376,12 @@ export const fontes = {
     'NCG (Necessidade de Capital de Giro) = (Contas a Receber + Estoques) − Fornecedores',
     'NCG sobre Receita = NCG / Receita Líquida',
     'Giro do Ativo = Receita Líquida / Ativo Total',
+    'Margem Líquida = Resultado Líquido / Receita Líquida',
     'Margem EBITDA = EBITDA / Receita Líquida',
+    'ROE (Retorno sobre o Patrimônio Líquido) = Resultado Líquido / Patrimônio Líquido',
+    'ROA (Retorno sobre o Ativo) = Resultado Líquido / Ativo Total',
     'ROIC = EBIT × (1 − alíquota efetiva de IR/CSLL do exercício) / (Dívida Líquida + Patrimônio Líquido)',
-    'Indicador de Alavancagem = Dívida Líquida / EBITDA',
+    'Índice de Alavancagem Financeira = Dívida Líquida / EBITDA',
     'Conversão de Caixa = Fluxo de Caixa Operacional / EBITDA',
   ],
 }
