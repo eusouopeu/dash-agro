@@ -1,10 +1,9 @@
+import { useEffect, useState } from 'react'
 import {
-  ArrowPathIcon,
-  ArchiveBoxIcon,
-  ClockIcon,
-  BanknotesIcon,
-  TruckIcon,
-  ScaleIcon,
+  PresentationChartLineIcon,
+  TableCellsIcon,
+  BookOpenIcon,
+  VariableIcon,
 } from '@heroicons/react/24/outline'
 import {
   ResponsiveContainer,
@@ -38,18 +37,49 @@ const COLORS = {
 }
 
 const anoAnterior = indicadores[indicadores.length - 2]
+import { anoPadrao, type BaseCalculo } from './data'
+import { Panorama } from './tabs/Panorama'
+import { Tabelas } from './tabs/Tabelas'
+import { Fontes } from './tabs/Fontes'
+import { Metodologia } from './tabs/Metodologia'
 
-function delta(atual: number, anterior: number, unidade: string, invertido = false) {
-  const diff = atual - anterior
-  const positivo = invertido ? diff < 0 : diff > 0
-  const sinal = diff > 0 ? '+' : ''
-  return {
-    texto: `${sinal}${diff.toFixed(1)} ${unidade} vs. 2023`,
-    positivo,
-  }
+type AbaId = 'panorama' | 'indicadores' | 'fontes' | 'metodologia'
+
+const ABAS: {
+  id: AbaId
+  rotulo: string
+  rotuloCurto: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+}[] = [
+  { id: 'panorama', rotulo: 'Panorama geral', rotuloCurto: 'Panorama', icon: PresentationChartLineIcon },
+  { id: 'indicadores', rotulo: 'Tabela de indicadores', rotuloCurto: 'Indicadores', icon: TableCellsIcon },
+  { id: 'fontes', rotulo: 'Fontes de dados', rotuloCurto: 'Fontes', icon: BookOpenIcon },
+  { id: 'metodologia', rotulo: 'Metodologia', rotuloCurto: 'Metodologia', icon: VariableIcon },
+]
+
+function abaDaUrl(): AbaId {
+  const h = window.location.hash.replace('#', '')
+  return ABAS.some((a) => a.id === h) ? (h as AbaId) : 'panorama'
 }
 
 export default function App() {
+  const [aba, setAba] = useState<AbaId>(abaDaUrl)
+  const [ano, setAno] = useState<number>(anoPadrao)
+  const [base, setBase] = useState<BaseCalculo>('final')
+
+  // Cada aba é endereçável, então um link pode apontar direto para a metodologia.
+  useEffect(() => {
+    const sincronizar = () => setAba(abaDaUrl())
+    window.addEventListener('hashchange', sincronizar)
+    return () => window.removeEventListener('hashchange', sincronizar)
+  }, [])
+
+  const irPara = (id: AbaId) => {
+    setAba(id)
+    window.history.replaceState(null, '', `#${id}`)
+    window.scrollTo({ top: 0 })
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-100">
       <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
@@ -70,133 +100,76 @@ export default function App() {
             </p>
           </div>
           <ThemeToggle />
+    <div className="min-h-screen bg-papel">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-tinta focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-papel"
+      >
+        Pular para o conteúdo
+      </a>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* Navegação lateral — desktop                                       */}
+      {/* ---------------------------------------------------------------- */}
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col bg-petroleo lg:flex">
+        <div className="px-6 pb-7 pt-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">Análise setorial</p>
+          <p className="mt-2 text-lg font-extrabold leading-tight tracking-tight text-white">
+            BRF
+            <span className="mx-1 font-normal text-white/45">·</span>
+            Copacol
+            <span className="mx-1 font-normal text-white/45">·</span>
+            C.Vale
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-white/55">Proteína e grãos · 2021–2025</p>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-6xl space-y-10 px-6 py-8">
-        <section>
-          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
-            Indicadores-chave ({ultimoAno.ano})
-          </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            <IndicatorCard
-              icon={ArrowPathIcon}
-              label="Giro do estoque"
-              value={`${ultimoAno.giroEstoque.toFixed(2)}x`}
-              detail={delta(ultimoAno.giroEstoque, anoAnterior.giroEstoque, 'x').texto}
-              accent={COLORS.indigo}
-            />
-            <IndicatorCard
-              icon={ArchiveBoxIcon}
-              label="PME (estocagem)"
-              value={formatDias(ultimoAno.pmeDias)}
-              detail={delta(ultimoAno.pmeDias, anoAnterior.pmeDias, 'dias', true).texto}
-              accent={COLORS.navy}
-            />
-            <IndicatorCard
-              icon={ClockIcon}
-              label="PMR (recebimento)"
-              value={formatDias(ultimoAno.pmrDias)}
-              detail={delta(ultimoAno.pmrDias, anoAnterior.pmrDias, 'dias', true).texto}
-              accent={COLORS.slate}
-            />
-            <IndicatorCard
-              icon={TruckIcon}
-              label="PMP (pagamento)"
-              value={formatDias(ultimoAno.pmpDias)}
-              detail={delta(ultimoAno.pmpDias, anoAnterior.pmpDias, 'dias').texto}
-              accent={COLORS.amber}
-            />
-            <IndicatorCard
-              icon={ScaleIcon}
-              label="Ciclo de caixa"
-              value={formatDias(ultimoAno.cicloCaixaDias)}
-              detail={delta(ultimoAno.cicloCaixaDias, anoAnterior.cicloCaixaDias, 'dias', true).texto}
-              accent={COLORS.emerald}
-            />
-            <IndicatorCard
-              icon={BanknotesIcon}
-              label="NCG"
-              value={formatBi(ultimoAno.ncg)}
-              detail={`${ultimoAno.ncgPctReceita.toFixed(1)}% da receita líquida`}
-              accent={COLORS.navy}
-            />
-          </div>
-        </section>
+        <nav aria-label="Seções do painel" className="flex-1 px-3">
+          <ul className="space-y-0.5">
+            {ABAS.map((a) => {
+              const ativa = aba === a.id
+              return (
+                <li key={a.id}>
+                  <button
+                    type="button"
+                    onClick={() => irPara(a.id)}
+                    aria-current={ativa ? 'page' : undefined}
+                    className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition-colors ${
+                      ativa
+                        ? 'bg-white font-semibold text-petroleo'
+                        : 'font-medium text-white/75 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <a.icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                    {a.rotulo}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
 
-        <section className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <h3 className="mb-1 text-sm font-bold text-slate-900 dark:text-white">
-              Giro do estoque (x/ano)
-            </h3>
-            <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-              Quantas vezes o estoque é vendido e reposto por ano — quanto maior, mais eficiente.
-            </p>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={indicadores} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(v: any) => `${Number(v).toFixed(2)}x`} />
-                <Line
-                  type="monotone"
-                  dataKey="giroEstoque"
-                  name="Giro do estoque"
-                  stroke={COLORS.indigo}
-                  strokeWidth={2.5}
-                  dot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="border-t border-white/15 px-6 py-5">
+          <p className="text-[11px] leading-relaxed text-white/55">
+            Projeto pessoal de análise de dados públicos
+          </p>
+          <p className="mt-1 text-[11px] font-semibold text-white/80">Pedro Caio Feitosa Teles</p>
+        </div>
+      </aside>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <h3 className="mb-1 text-sm font-bold text-slate-900 dark:text-white">
-              Prazos médios (dias)
-            </h3>
-            <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-              PME (estocagem), PMR (recebimento) e PMP (pagamento a fornecedores).
-            </p>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={indicadores} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(v: any) => formatDias(Number(v))} />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="pmeDias" name="PME" stroke={COLORS.navy} strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="pmrDias" name="PMR" stroke={COLORS.slate} strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="pmpDias" name="PMP" stroke={COLORS.amber} strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+      {/* ---------------------------------------------------------------- */}
+      {/* Conteúdo                                                          */}
+      {/* ---------------------------------------------------------------- */}
+      <div className="lg:pl-60">
+        <main id="conteudo" className="mx-auto max-w-6xl px-5 pb-28 pt-8 sm:px-8 sm:pt-12 lg:pb-20">
+          {aba === 'panorama' && <Panorama ano={ano} setAno={setAno} base={base} setBase={setBase} />}
+          {aba === 'indicadores' && <Tabelas base={base} setBase={setBase} />}
+          {aba === 'fontes' && <Fontes />}
+          {aba === 'metodologia' && <Metodologia />}
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <h3 className="mb-1 text-sm font-bold text-slate-900 dark:text-white">
-              Ciclo de caixa operacional (dias)
-            </h3>
-            <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-              PME + PMR − PMP. Negativo = operação financiada por fornecedores, não por capital
-              próprio.
-            </p>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={indicadores} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(v: any) => formatDias(Number(v))} />
-                <Bar dataKey="cicloCaixaDias" name="Ciclo de caixa" fill={COLORS.emerald} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <h3 className="mb-1 text-sm font-bold text-slate-900 dark:text-white">
-              Necessidade de Capital de Giro (R$ bilhões)
-            </h3>
-            <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-              (Contas a Receber + Estoques) − Fornecedores. O salto de 2022 reflete a conversão
-              das lojas Extra Hiper adquiridas naquele ano.
+          <footer className="mt-16 border-t border-linha pt-6 lg:hidden">
+            <p className="text-[11px] leading-relaxed text-cinza">
+              Projeto pessoal de análise de dados públicos — Pedro Caio Feitosa Teles
             </p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={indicadores} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
@@ -262,11 +235,43 @@ export default function App() {
             ))}
           </ul>
         </section>
+          </footer>
+        </main>
+      </div>
 
-        <footer className="pb-8 text-center text-xs text-slate-400">
-          Projeto pessoal de análise de dados públicos — Pedro Caio Feitosa Teles
-        </footer>
-      </main>
+      {/* ---------------------------------------------------------------- */}
+      {/* Navegação inferior — mobile, só ícones                            */}
+      {/* ---------------------------------------------------------------- */}
+      <nav
+        aria-label="Seções do painel"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-petroleo pb-[env(safe-area-inset-bottom)] lg:hidden"
+      >
+        <ul className="flex">
+          {ABAS.map((a) => {
+            const ativa = aba === a.id
+            return (
+              <li key={a.id} className="flex-1">
+                <button
+                  type="button"
+                  onClick={() => irPara(a.id)}
+                  aria-current={ativa ? 'page' : undefined}
+                  aria-label={a.rotulo}
+                  title={a.rotulo}
+                  className="relative flex h-16 w-full items-center justify-center"
+                >
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                      ativa ? 'bg-white text-petroleo' : 'text-white/70'
+                    }`}
+                  >
+                    <a.icon className="h-[22px] w-[22px]" aria-hidden="true" />
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </nav>
     </div>
   )
 }

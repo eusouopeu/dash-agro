@@ -3,14 +3,67 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Base */
+  --color-papel: #f5f3ee;
+  --color-tinta: #171717;
+  --color-cinza: #737373;
+
+  /* Assinatura */
+  --color-petroleo: #087f8c;
+  --color-petroleo-escuro: #05646f;
+  --color-petroleo-claro: #3a9ba6;
+
+  /* Acento */
+  --color-brasa: #e76f32;
+
+  /* Superfícies derivadas */
+  --color-carta: #fffefb;
+  --color-linha: #e3ded3;
+  --color-linha-forte: #d2ccbe;
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Números sempre alinhados em colunas — leitura de balanço. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Foco visível e consistente em toda a interface. */
+:focus-visible {
+  outline: 2px solid var(--color-brasa);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
