@@ -2,8 +2,6 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  BarChart,
-  Bar,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -57,16 +55,6 @@ const AJUDA_GIRO_ESTOQUE = {
   formula: 'CMV ÷ Estoques',
   explicacao: 'Quanto maior o giro do estoque, mais vezes por ano o estoque é vendido e reposto.',
 }
-const AJUDA_MARGEM_EBITDA = {
-  titulo: 'Margem EBITDA',
-  formula: 'EBITDA ÷ Receita Líquida',
-  explicacao: 'Quanto maior a margem EBITDA, maior a geração de caixa operacional para cada real de receita, antes de juros, impostos, depreciação e amortização.',
-}
-const AJUDA_ROIC = {
-  titulo: 'ROIC',
-  formula: 'EBIT × (1 − alíquota efetiva) ÷ (Dívida Líquida + Patrimônio Líquido)',
-  explicacao: 'Quanto maior o ROIC, maior o retorno gerado sobre o capital investido na operação.',
-}
 const AJUDA_NCG = {
   titulo: 'NCG sobre receita',
   formula: '(Contas a Receber + Estoques − Fornecedores) ÷ Receita Líquida',
@@ -99,11 +87,6 @@ export function Panorama({
 
   const dominio = dominioCiclo(atuais.map((a) => a.indicador))
 
-  const rentabilidade = [
-    { metrica: 'Margem EBITDA', ...Object.fromEntries(atuais.map((a) => [a.empresa.nomeCurto, a.indicador.margemEbitda * 100])) },
-    { metrica: 'ROIC', ...Object.fromEntries(atuais.map((a) => [a.empresa.nomeCurto, a.indicador.roic * 100])) },
-  ]
-
   const participantes = atuais
 
   const receitaCresc = (empresa: Empresa) => {
@@ -123,7 +106,7 @@ export function Panorama({
   return (
     <div className="space-y-14">
       {/* ---------------------------------------------------------------- */}
-      {/* Abertura: a tese, e logo abaixo o mecanismo que a sustenta       */}
+      {/* Abertura: a tese                                                  */}
       {/* ---------------------------------------------------------------- */}
       <section>
         <div className="flex flex-wrap items-start justify-between gap-6">
@@ -142,8 +125,8 @@ export function Panorama({
               {empresaCicloMaisLongo.nomeCurto} em{' '}
               <strong className="font-semibold text-tinta">{formatDias(cicloMaisLongo.cicloFinanceiroDias)}</strong>
               {' — '}
-              uma distância de {formatDias(Math.abs(diferencaCiclo))}. As cascatas abaixo mostram de onde ela vem: prazo
-              com fornecedor.
+              uma distância de {formatDias(Math.abs(diferencaCiclo))}. Mais abaixo, as cascatas mostram de onde ela
+              vem: prazo com fornecedor.
             </p>
             <p className="mt-3 text-base leading-relaxed text-cinza">
               Em capital de giro isso equivale a NCG de{' '}
@@ -172,9 +155,81 @@ export function Panorama({
             <SeletorBaseCalculo valor={base} onChange={setBase} />
           </div>
         </div>
+      </section>
 
-        {/* Assinatura da página: a cascata do ciclo financeiro */}
-        <Card className="mt-8 overflow-hidden">
+      {/* ---------------------------------------------------------------- */}
+      {/* 1. Identificação das três empresas                                */}
+      {/* ---------------------------------------------------------------- */}
+      <section>
+        <TituloSecao titulo="As três empresas" descricao={`Porte e crescimento em ${ano}.`} />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {empresas.map((empresa) => {
+            const atual = indicadorPorAno(empresa, ano)
+            const cresc = receitaCresc(empresa)
+            return (
+              <Card key={empresa.id} className="relative overflow-hidden pt-1">
+                <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: empresa.cor }} aria-hidden="true" />
+                <div className="p-6">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: empresa.cor }}>
+                    {empresa.subtitulo}
+                  </p>
+                  <h3 className="mt-2 text-lg font-bold tracking-tight text-tinta">{empresa.nome}</h3>
+
+                  <p className="tabular mt-5 font-mono text-3xl font-semibold text-tinta">{formatBi(atual.receitaLiquida)}</p>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.1em] text-cinza">
+                    Receita líquida
+                    {cresc !== null && (
+                      <span className="ml-1.5 normal-case tracking-normal text-tinta">
+                        <span className="tabular font-semibold">
+                          {cresc >= 0 ? '+' : '−'}
+                          {Math.abs(cresc * 100).toFixed(1)}%
+                        </span>{' '}
+                        vs. {ano - 1}
+                      </span>
+                    )}
+                  </p>
+
+                  <div className="mt-5 grid grid-cols-2 gap-4 border-t border-linha pt-4">
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-cinza">Ativo total</p>
+                      <p className="tabular mt-1 font-mono text-sm font-semibold text-tinta">{formatBi(atual.ativoTotal)}</p>
+                    </div>
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-cinza">Patrimônio líquido</p>
+                      <p className="tabular mt-1 font-mono text-sm font-semibold text-tinta">{formatBi(atual.patrimonioLiquido)}</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* 2. Recorte do ano, por bloco temático                             */}
+      {/* ---------------------------------------------------------------- */}
+      <section>
+        <TituloSecao
+          titulo={`Indicadores de ${ano}`}
+          descricao="Quatro blocos temáticos. Indicadores que dependem de dados operacionais fora das demonstrações financeiras aparecem marcados como sem dado."
+        />
+        <div className="grid gap-4 xl:grid-cols-2">
+          {grupos.map((grupo) => (
+            <ComparativoBarras key={grupo.id} grupo={grupo} participantes={participantes} ano={ano} />
+          ))}
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* 3. Cascata do ciclo financeiro, por empresa                       */}
+      {/* ---------------------------------------------------------------- */}
+      <section>
+        <TituloSecao
+          titulo="Ciclo financeiro por empresa"
+          descricao={`Cascata de PME + PMR − PMP em ${ano}, a origem dos dias de ciclo de cada empresa.`}
+        />
+        <Card className="overflow-hidden">
           <div className="grid gap-x-8 gap-y-10 p-6 sm:p-8 md:grid-cols-2 xl:grid-cols-3">
             {atuais.map(({ empresa, indicador }) => (
               <CicloWaterfall key={empresa.id} empresa={empresa} indicador={indicador} dominio={dominio} />
@@ -201,60 +256,15 @@ export function Panorama({
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Identificação das três empresas                                   */}
-      {/* ---------------------------------------------------------------- */}
-      <section>
-        <TituloSecao titulo="As três empresas" descricao={`Porte e crescimento em ${ano}.`} />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {empresas.map((empresa) => {
-            const atual = indicadorPorAno(empresa, ano)
-            const cresc = receitaCresc(empresa)
-            return (
-              <Card key={empresa.id} className="relative overflow-hidden p-6">
-                <span className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: empresa.cor }} aria-hidden="true" />
-                <p
-                  className="inline-block rounded-[3px] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em]"
-                  style={{ backgroundColor: empresa.corSuave, color: empresa.cor }}
-                >
-                  {empresa.nomeCurto}
-                </p>
-                <h3 className="mt-2.5 text-lg font-bold tracking-tight text-tinta">{empresa.nome}</h3>
-                <p className="mt-0.5 text-xs text-cinza">{empresa.subtitulo}</p>
-                <p className="tabular mt-5 font-mono text-3xl font-semibold text-tinta">{formatBi(atual.receitaLiquida)}</p>
-                <p className="mt-1 text-xs text-cinza">
-                  Receita líquida de {ano}
-                  {cresc !== null && (
-                    <>
-                      {' · '}
-                      <span className="tabular font-mono font-semibold text-tinta">
-                        {cresc >= 0 ? '+' : '−'}
-                        {Math.abs(cresc * 100).toFixed(1)}%
-                      </span>{' '}
-                      vs. {ano - 1}
-                    </>
-                  )}
-                </p>
-              </Card>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Séries e comparativos                                             */}
+      {/* 4. Séries e comparativos                                          */}
       {/* ---------------------------------------------------------------- */}
       <section>
         <TituloSecao
           titulo="Séries e comparativos"
-          descricao="Evolução no tempo e recorte do ano selecionado. As três empresas mantêm a mesma cor em todos os gráficos."
+          descricao="Evolução no tempo. As três empresas mantêm a mesma cor em todos os gráficos."
         />
         <div className="grid gap-4 lg:grid-cols-2">
-          <MolduraGrafico
-            titulo="Ciclo financeiro ao longo do tempo"
-            descricao="PME + PMR − PMP, em dias. Abaixo da linha do zero, o fornecedor financia a operação."
-            legenda={LEGENDA}
-            ajuda={[AJUDA_CICLO]}
-          >
+          <MolduraGrafico titulo="Ciclo financeiro" unidade="dias" legenda={LEGENDA} ajuda={[AJUDA_CICLO]}>
             <ResponsiveContainer width="100%" height={230}>
               <LineChart data={serie('cicloFinanceiroDias', base)} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
                 <CartesianGrid {...GRADE} vertical={false} />
@@ -269,12 +279,7 @@ export function Panorama({
             </ResponsiveContainer>
           </MolduraGrafico>
 
-          <MolduraGrafico
-            titulo="Giro do estoque ao longo do tempo"
-            descricao="Quantas vezes o estoque é vendido e reposto por ano. Quanto maior, mais eficiente."
-            legenda={LEGENDA}
-            ajuda={[AJUDA_GIRO_ESTOQUE]}
-          >
+          <MolduraGrafico titulo="Giro do estoque" unidade="x ao ano" legenda={LEGENDA} ajuda={[AJUDA_GIRO_ESTOQUE]}>
             <ResponsiveContainer width="100%" height={230}>
               <LineChart data={serie('giroEstoque', base)} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
                 <CartesianGrid {...GRADE} vertical={false} />
@@ -288,12 +293,7 @@ export function Panorama({
             </ResponsiveContainer>
           </MolduraGrafico>
 
-          <MolduraGrafico
-            titulo="NCG sobre receita ao longo do tempo"
-            descricao="Necessidade de capital de giro (Contas a Receber + Estoques − Fornecedores), como % da receita. Abaixo de zero, o fornecedor financia o giro."
-            legenda={LEGENDA}
-            ajuda={[AJUDA_NCG]}
-          >
+          <MolduraGrafico titulo="NCG sobre receita" unidade="% da receita" legenda={LEGENDA} ajuda={[AJUDA_NCG]}>
             <ResponsiveContainer width="100%" height={230}>
               <LineChart data={serie('ncgSobreReceita', base, 100)} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
                 <CartesianGrid {...GRADE} vertical={false} />
@@ -308,12 +308,7 @@ export function Panorama({
             </ResponsiveContainer>
           </MolduraGrafico>
 
-          <MolduraGrafico
-            titulo="Conversão de caixa ao longo do tempo"
-            descricao="Fluxo de Caixa Operacional sobre EBITDA. Abaixo da linha de 1,0x, parte do EBITDA não virou caixa no ano."
-            legenda={LEGENDA}
-            ajuda={[AJUDA_CONVERSAO_CAIXA]}
-          >
+          <MolduraGrafico titulo="Conversão de caixa" unidade="x EBITDA" legenda={LEGENDA} ajuda={[AJUDA_CONVERSAO_CAIXA]}>
             <ResponsiveContainer width="100%" height={230}>
               <LineChart data={serie('conversaoCaixa', base)} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
                 <CartesianGrid {...GRADE} vertical={false} />
@@ -327,41 +322,6 @@ export function Panorama({
               </LineChart>
             </ResponsiveContainer>
           </MolduraGrafico>
-
-          <MolduraGrafico
-            titulo={`Rentabilidade em ${ano}`}
-            descricao="Margem EBITDA e ROIC. As duas medidas estão em porcentagem, então dividem o mesmo eixo."
-            legenda={LEGENDA}
-            ajuda={[AJUDA_MARGEM_EBITDA, AJUDA_ROIC]}
-          >
-            <ResponsiveContainer width="100%" height={230}>
-              <BarChart data={rentabilidade} margin={{ top: 6, right: 12, left: -14, bottom: 0 }} barGap={2}>
-                <CartesianGrid {...GRADE} vertical={false} />
-                <XAxis dataKey="metrica" {...EIXO} />
-                <YAxis {...EIXO} width={46} tickFormatter={(v) => `${v}%`} />
-                <ReferenceLine y={0} stroke="#171717" strokeWidth={1.25} />
-                <Tooltip cursor={{ fill: 'rgba(23,23,23,0.04)' }} content={<TooltipCartao format={(v) => `${v.toFixed(1)}%`} />} />
-                {empresas.map((e) => (
-                  <Bar key={e.id} dataKey={e.nomeCurto} fill={e.cor} radius={[3, 3, 0, 0]} maxBarSize={44} isAnimationActive={false} />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
-          </MolduraGrafico>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Recorte do ano, por bloco temático                                */}
-      {/* ---------------------------------------------------------------- */}
-      <section>
-        <TituloSecao
-          titulo={`Indicadores de ${ano}`}
-          descricao="Quatro blocos temáticos. Indicadores que dependem de dados operacionais fora das demonstrações financeiras aparecem marcados como sem dado."
-        />
-        <div className="grid gap-4 xl:grid-cols-2">
-          {grupos.map((grupo) => (
-            <ComparativoBarras key={grupo.id} grupo={grupo} participantes={participantes} ano={ano} />
-          ))}
         </div>
       </section>
     </div>

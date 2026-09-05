@@ -175,12 +175,15 @@ export function TituloSecao({
 export function MolduraGrafico({
   titulo,
   descricao,
+  unidade,
   legenda,
   ajuda,
   children,
 }: {
   titulo: string
-  descricao: string
+  descricao?: string
+  /** Unidade do eixo, mostrada como selo mono no canto superior direito — ex.: "% ao ano". */
+  unidade?: string
   legenda?: { rotulo: string; cor: string; hachurada?: boolean }[]
   /** Fórmula(s) do(s) indicador(es) do gráfico, para o popover de ajuda. */
   ajuda?: AjudaIndicador[]
@@ -188,17 +191,22 @@ export function MolduraGrafico({
 }) {
   return (
     <Card className="p-5">
-      <h3 className="flex items-center gap-1.5 text-sm font-bold tracking-tight text-tinta">
-        {titulo}
-        {ajuda && ajuda.length > 0 && <InfoPopoverMultiplo itens={ajuda} />}
-      </h3>
-      <p className="mt-1 text-xs leading-relaxed text-cinza">{descricao}</p>
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="flex items-center gap-1.5 text-sm font-bold tracking-tight text-tinta">
+          {titulo}
+          {ajuda && ajuda.length > 0 && <InfoPopoverMultiplo itens={ajuda} />}
+        </h3>
+        {unidade && (
+          <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-cinza">{unidade}</span>
+        )}
+      </div>
+      {descricao && <p className="mt-1 text-xs leading-relaxed text-cinza">{descricao}</p>}
       {legenda && (
         <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
           {legenda.map((l) => (
             <li key={l.rotulo} className="flex items-center gap-1.5 font-mono text-[11px] text-cinza">
               <span
-                className="inline-block h-2.5 w-2.5 rounded-[2px]"
+                className="inline-block h-[3px] w-4 shrink-0 rounded-full"
                 style={
                   l.hachurada
                     ? { border: `1.5px solid ${l.cor}`, backgroundColor: 'transparent' }
