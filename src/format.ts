@@ -31,12 +31,21 @@ export function formatDelta(v: number, format: (n: number) => string) {
   return `${v >= 0 ? '+' : '−'}${format(Math.abs(v))}`
 }
 
+/** Decimal com vírgula e sem separador de milhar — o que o Excel em pt-BR lê como número. */
+export function rawNumber(value: number, digits: number) {
+  return value.toFixed(digits).replace('.', ',')
+}
+
 export interface IndicatorRow {
   key: keyof AnnualIndicators
   label: string
   curto: string
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   format: (v: number) => string
+  /** Unidade da linha, para o cabeçalho do CSV — ex.: "dias", "x", "%". */
+  unit: string
+  /** Valor levado para o CSV: número cru em pt-BR, na unidade indicada em `unit`. */
+  csv: (v: number) => string
   menorMelhor: boolean
   semJulgamento?: boolean
   formula: string
@@ -50,6 +59,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'Ciclo',
     icon: ArrowsRightLeftIcon,
     format: formatDias,
+    unit: 'dias',
+    csv: (v) => rawNumber(v, 1),
     menorMelhor: true,
     formula: 'PME + PMR − PMP',
     explicacao: 'Quanto menor o ciclo financeiro, menos dias de caixa próprio a operação prende entre pagar o fornecedor e receber do cliente — negativo significa que o fornecedor financia o giro.',
@@ -60,6 +71,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'Giro estoque',
     icon: ArrowPathIcon,
     format: formatX,
+    unit: 'x',
+    csv: (v) => rawNumber(v, 2),
     menorMelhor: false,
     formula: 'CMV ÷ Estoques',
     explicacao: 'Quanto maior o giro do estoque, mais vezes por ano o estoque é vendido e reposto.',
@@ -70,6 +83,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'PME',
     icon: ArchiveBoxIcon,
     format: formatDias,
+    unit: 'dias',
+    csv: (v) => rawNumber(v, 1),
     menorMelhor: true,
     formula: '(Estoques ÷ CMV) × 365',
     explicacao: 'Quanto menor o PME, menos tempo a mercadoria fica parada no estoque antes de ser vendida.',
@@ -80,6 +95,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'PMR',
     icon: ClockIcon,
     format: formatDias,
+    unit: 'dias',
+    csv: (v) => rawNumber(v, 1),
     menorMelhor: true,
     formula: '(Contas a Receber ÷ Receita Líquida) × 365',
     explicacao: 'Quanto menor o PMR, mais rápido a empresa recebe dos clientes depois da venda.',
@@ -90,6 +107,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'PMP',
     icon: TruckIcon,
     format: formatDias,
+    unit: 'dias',
+    csv: (v) => rawNumber(v, 1),
     menorMelhor: false,
     semJulgamento: true,
     formula: '(Fornecedores ÷ CMV) × 365',
@@ -101,6 +120,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'Giro ativo',
     icon: ChartBarIcon,
     format: formatX,
+    unit: 'x',
+    csv: (v) => rawNumber(v, 2),
     menorMelhor: false,
     formula: 'Receita Líquida ÷ Ativo Total',
     explicacao: 'Quanto maior o giro do ativo, mais receita a empresa gera para cada real investido em ativos.',
@@ -111,6 +132,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'Marg. EBITDA',
     icon: BanknotesIcon,
     format: formatPct,
+    unit: '%',
+    csv: (v) => rawNumber(v * 100, 1),
     menorMelhor: false,
     formula: 'EBITDA ÷ Receita Líquida',
     explicacao: 'Quanto maior a margem EBITDA, maior a geração de caixa operacional para cada real de receita, antes de juros, impostos, depreciação e amortização.',
@@ -121,6 +144,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'ROIC',
     icon: ArrowTrendingUpIcon,
     format: formatPct,
+    unit: '%',
+    csv: (v) => rawNumber(v * 100, 1),
     menorMelhor: false,
     formula: 'EBIT × (1 − alíquota efetiva) ÷ (Dívida Líquida + Patrimônio Líquido)',
     explicacao: 'Quanto maior o ROIC, maior o retorno gerado sobre o capital investido na operação.',
@@ -131,6 +156,8 @@ export const ROWS: IndicatorRow[] = [
     curto: 'Dív.Líq./EBITDA',
     icon: ShieldExclamationIcon,
     format: formatX,
+    unit: 'x',
+    csv: (v) => rawNumber(v, 2),
     menorMelhor: true,
     formula: 'Dívida Líquida ÷ EBITDA',
     explicacao: 'Quanto menor a alavancagem financeira, menos anos de geração de caixa operacional seriam necessários para quitar a dívida líquida.',

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { ChevronUpIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { empresas, todosAnos, indicadorOpcional, comBaseCalculo, type Empresa, type BaseCalculo } from '../data'
 import { ROWS, formatDelta, type IndicatorRow } from '../format'
@@ -23,6 +24,28 @@ const COLUNAS: { key: ColunaKey; rotulo: string; alinha: 'left' | 'right' }[] = 
   { key: 'indicador', rotulo: 'Indicador', alinha: 'left' },
   ...empresas.map((e) => ({ key: e.id, rotulo: e.nomeCurto, alinha: 'right' as const })),
 ]
+
+/**
+ * Ponto e vírgula como separador e BOM no início: é o que faz o Excel em português
+ * abrir o arquivo já com as colunas separadas e os acentos corretos.
+ */
+function downloadCsv(ano: number, linhas: Linha[]) {
+  const header = ['Indicador', ...empresas.map((e) => e.nomeCurto)]
+  const body = linhas.map((l) => [
+    `${l.row.label} (${l.row.unit})`,
+    ...l.celulas.map((c) => (c.valor === null ? '' : l.row.csv(c.valor))),
+  ])
+  const csv = [header, ...body].map((line) => line.join(';')).join('\r\n')
+
+  const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `indicadores-${ano}.csv`
+  link.click()
+  // Revogar no mesmo tick cancela o download em alguns navegadores.
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
 
 function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
   const [coluna, setColuna] = useState<ColunaKey>('indicador')
@@ -77,6 +100,14 @@ function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
             ? `As três empresas · variação contra ${ano - 1}`
             : `Com dado neste exercício: ${presentes.map((e) => e.nomeCurto).join(', ')}`}
         </p>
+        <button
+          type="button"
+          onClick={() => downloadCsv(ano, ordenadas)}
+          className="flex items-center gap-2 rounded-md border border-linha px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-cinza transition-colors hover:border-petroleo hover:text-petroleo"
+        >
+          <ArrowDownTrayIcon className="h-3.5 w-3.5" />
+          Baixar CSV
+        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -104,6 +135,13 @@ function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
                       } ${ativa ? 'text-petroleo' : 'text-cinza'}`}
                       title={`Ordenar por ${col.rotulo}`}
                     >
+                      {col.key !== 'indicador' && (
+                        <span
+                          className="inline-block h-2.5 w-0.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: empresas.find((e) => e.id === col.key)?.cor }}
+                          aria-hidden
+                        />
+                      )}
                       {col.rotulo}
                       <Icone
                         className={`h-3.5 w-3.5 shrink-0 ${ativa ? 'opacity-100' : 'opacity-30 group-hover:opacity-70'}`}
