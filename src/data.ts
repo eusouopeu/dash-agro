@@ -88,7 +88,7 @@ export const copacolBruto: AnnualFinancials[] = [
   { ano: 2022, receitaLiquida: 8_805_180, cmv: 6_899_673, estoques: 1_884_438, contasAReceber: 1_126_686, fornecedores: 519_323, ativoTotal: 8_661_355, patrimonioLiquido: 2_453_037, dividaLiquida: 2_025_643, ebitda: 1_007_553, ebit: 699_937, fluxoCaixaOperacional: 814_083, aliquotaEfetiva: 0.0670, ...SEM_OPERACIONAL },
   { ano: 2023, receitaLiquida: 9_424_815, cmv: 7_643_347, estoques: 1_512_424, contasAReceber: 1_285_222, fornecedores: 556_605, ativoTotal: 8_786_550, patrimonioLiquido: 2_901_037, dividaLiquida: 1_314_869, ebitda: 1_205_591, ebit: 855_858, fluxoCaixaOperacional: 1_444_053, aliquotaEfetiva: 0.0199, ...SEM_OPERACIONAL },
   { ano: 2024, receitaLiquida: 10_192_495, cmv: 7_800_110, estoques: 1_617_505, contasAReceber: 1_492_180, fornecedores: 664_100, ativoTotal: 9_994_085, patrimonioLiquido: 3_560_004, dividaLiquida: 1_099_461, ebitda: 1_464_051, ebit: 1_054_884, fluxoCaixaOperacional: 1_660_816, aliquotaEfetiva: 0.0150, ...SEM_OPERACIONAL },
-  { ano: 2025, receitaLiquida: 10_492_542, cmv: 8_354_180, estoques: 1_793_789, contasAReceber: 1_385_617, fornecedores: 709_039, ativoTotal: 10_448_395, patrimonioLiquido: 4_295_438, dividaLiquida: 623_529, ebitda: 1_418_787, ebit: 1_014_487, fluxoCaixaOperacional: 1_965_864, aliquotaEfetiva: 0.0349, ...SEM_OPERACIONAL },
+  { ano: 2025, receitaLiquida: 10_492_542, cmv: 8_354_180, estoques: 1_793_789, contasAReceber: 1_385_617, fornecedores: 709_039, ativoTotal: 10_448_395, patrimonioLiquido: 4_295_438, dividaLiquida: 623_529, ebitda: 1_418_787, ebit: 1_014_487, fluxoCaixaOperacional: 1_965_864, aliquotaEfetiva: 0.0349, capex: null, depreciacaoAmortizacao: null, funcionarios: 16_800, volumeToneladas: 2_372_000, capacidadeArmazenagemToneladas: null },
 ]
 
 // ---------------------------------------------------------------------------
@@ -97,9 +97,14 @@ export const copacolBruto: AnnualFinancials[] = [
 // Fonte: Balanço Patrimonial, Demonstração de Sobras ou Perdas e Demonstração
 // dos Fluxos de Caixa consolidados dos Relatórios anuais de 2023, 2024 e 2025
 // (o exercício de 2022 vem da coluna comparativa do relatório de 2023).
-// Dados operacionais de 2022 (funcionários, produção recebida e capacidade de
-// armazenagem) vêm do Relatório Anual 2022 — os relatórios anuais de 2023 a
-// 2025 não foram fornecidos, então esses campos ficam nulos nesses anos.
+// Dados operacionais (funcionários, produção recebida e capacidade estática de
+// armazenagem) vêm de páginas avulsas dos Relatórios Anuais de 2022 a 2025
+// (seções "Funcionários", "Produção Total" e "Armazenamento", fornecidas pelo
+// usuário — os relatórios completos não foram fornecidos, só essas seções).
+// Cada valor é o dado corrente do relatório do próprio ano-exercício (nunca
+// tirado do gráfico histórico de um relatório posterior); os relatórios de
+// anos seguintes reproduzem exatamente os mesmos valores em suas séries
+// históricas, sem nenhum restatement identificado.
 //
 // Convenções aplicadas para manter a comparação com BRF e Copacol:
 //  - "Ingressos e receitas operacionais líquidas" = Receita Líquida
@@ -112,9 +117,9 @@ export const copacolBruto: AnnualFinancials[] = [
 // ---------------------------------------------------------------------------
 export const cvaleBruto: AnnualFinancials[] = [
   { ano: 2022, receitaLiquida: 22_436_067, cmv: 18_760_922, estoques: 4_380_866, contasAReceber: 2_199_502, fornecedores: 3_703_119, ativoTotal: 13_510_253, patrimonioLiquido: 3_391_491, dividaLiquida: 3_813_762, ebitda: 1_309_564, ebit: 1_102_827, fluxoCaixaOperacional: 304_357, aliquotaEfetiva: 0.034383, capex: 686_263, depreciacaoAmortizacao: 206_737, funcionarios: 13_668, volumeToneladas: 4_195_769, capacidadeArmazenagemToneladas: 2_938_322 },
-  { ano: 2023, receitaLiquida: 23_780_553, cmv: 20_597_885, estoques: 3_354_172, contasAReceber: 2_671_909, fornecedores: 3_567_305, ativoTotal: 13_225_325, patrimonioLiquido: 3_701_919, dividaLiquida: 3_439_150, ebitda: 1_126_148, ebit: 891_012, fluxoCaixaOperacional: 1_264_714, aliquotaEfetiva: 0.185503, capex: 958_213, depreciacaoAmortizacao: 235_136, funcionarios: null, volumeToneladas: null, capacidadeArmazenagemToneladas: null },
-  { ano: 2024, receitaLiquida: 21_387_940, cmv: 17_895_743, estoques: 3_025_500, contasAReceber: 2_278_011, fornecedores: 3_289_943, ativoTotal: 14_004_920, patrimonioLiquido: 4_338_354, dividaLiquida: 3_414_659, ebitda: 1_503_818, ebit: 1_156_920, fluxoCaixaOperacional: 1_025_867, aliquotaEfetiva: 0.054122, capex: 839_042, depreciacaoAmortizacao: 346_898, funcionarios: null, volumeToneladas: null, capacidadeArmazenagemToneladas: null },
-  { ano: 2025, receitaLiquida: 24_647_822, cmv: 20_761_621, estoques: 2_861_511, contasAReceber: 2_899_368, fornecedores: 3_322_422, ativoTotal: 16_251_612, patrimonioLiquido: 5_104_495, dividaLiquida: 3_655_461, ebitda: 1_820_765, ebit: 1_464_398, fluxoCaixaOperacional: 615_027, aliquotaEfetiva: 0.123733, capex: 970_737, depreciacaoAmortizacao: 356_367, funcionarios: null, volumeToneladas: null, capacidadeArmazenagemToneladas: null },
+  { ano: 2023, receitaLiquida: 23_780_553, cmv: 20_597_885, estoques: 3_354_172, contasAReceber: 2_671_909, fornecedores: 3_567_305, ativoTotal: 13_225_325, patrimonioLiquido: 3_701_919, dividaLiquida: 3_439_150, ebitda: 1_126_148, ebit: 891_012, fluxoCaixaOperacional: 1_264_714, aliquotaEfetiva: 0.185503, capex: 958_213, depreciacaoAmortizacao: 235_136, funcionarios: 13_886, volumeToneladas: 6_136_109, capacidadeArmazenagemToneladas: 3_326_366 },
+  { ano: 2024, receitaLiquida: 21_387_940, cmv: 17_895_743, estoques: 3_025_500, contasAReceber: 2_278_011, fornecedores: 3_289_943, ativoTotal: 14_004_920, patrimonioLiquido: 4_338_354, dividaLiquida: 3_414_659, ebitda: 1_503_818, ebit: 1_156_920, fluxoCaixaOperacional: 1_025_867, aliquotaEfetiva: 0.054122, capex: 839_042, depreciacaoAmortizacao: 346_898, funcionarios: 15_018, volumeToneladas: 5_174_053, capacidadeArmazenagemToneladas: 3_219_612 },
+  { ano: 2025, receitaLiquida: 24_647_822, cmv: 20_761_621, estoques: 2_861_511, contasAReceber: 2_899_368, fornecedores: 3_322_422, ativoTotal: 16_251_612, patrimonioLiquido: 5_104_495, dividaLiquida: 3_655_461, ebitda: 1_820_765, ebit: 1_464_398, fluxoCaixaOperacional: 615_027, aliquotaEfetiva: 0.123733, capex: 970_737, depreciacaoAmortizacao: 356_367, funcionarios: 15_346, volumeToneladas: 6_560_771, capacidadeArmazenagemToneladas: 3_413_927 },
 ]
 
 export interface AnnualIndicators extends AnnualFinancials {
@@ -267,6 +272,7 @@ export const fontes = {
       'Contas a Receber e Fornecedores usam apenas o saldo circulante (mesma convenção aplicada à BRF, para comparabilidade).',
       'Os quatro relatórios (referência 2022, 2023, 2024, 2025) trazem cada ano como coluna corrente em pelo menos um deles e batem exatamente entre si nos anos sobrepostos — nenhuma restatement foi identificada, ao contrário da BRF.',
       'Ano de 2025 disponível apenas para a Copacol (sem par na BRF nesta base) — mantido na série histórica da empresa, fora da comparação direta 2021-2024.',
+      'Funcionários e volume recebido de 2025 vêm do Relatório do Conselho de Administração 2025 (relatorio-2025-adm-v2.pdf, disponível publicamente em copacol.com.br), não do relatório financeiro: "16,8 mil colaboradores" (arredondado, sem casa decimal exata) e 2.372 mil toneladas de recebimento de grãos. CAPEX, depreciação/amortização e capacidade estática de armazenagem não aparecem nesse relatório administrativo (ele só traz "armazenagem de grãos" como volume movimentado, não capacidade estática) e continuam sem dado.',
     ],
     porAno: [
       { ano: 2021, documento: 'Relatório Financeiro 2022 (coluna comparativa 2021)', arquivo: 'relatorio-2022-financeiro-copacol.pdf' },

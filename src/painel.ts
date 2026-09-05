@@ -34,7 +34,7 @@ const FALTA_CAPEX =
   'Disponível só para a C.Vale. Para BRF e Copacol falta extrair a linha de aquisição de imobilizado e intangível das atividades de investimento da DFC.'
 
 const FALTA_OPERACIONAL =
-  'Disponível só para a C.Vale em 2022, do Relatório Anual. Os demais anos e as outras duas empresas dependem de relatórios operacionais que não estão nesta base.'
+  'Disponível para a C.Vale em 2022-2024, dos Relatórios Anuais. BRF e Copacol dependem de relatórios operacionais que não estão nesta base (a Copacol só tem esse dado em 2025, fora da faixa comparável).'
 
 export const grupos: GrupoPainel[] = [
   {
