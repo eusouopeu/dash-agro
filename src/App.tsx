@@ -5,7 +5,7 @@ import {
   BookOpenIcon,
   VariableIcon,
 } from '@heroicons/react/24/outline'
-import { anoPadrao } from './data'
+import { anoPadrao, type BaseCalculo } from './data'
 import { Panorama } from './tabs/Panorama'
 import { Tabelas } from './tabs/Tabelas'
 import { Fontes } from './tabs/Fontes'
@@ -33,6 +33,7 @@ function abaDaUrl(): AbaId {
 export default function App() {
   const [aba, setAba] = useState<AbaId>(abaDaUrl)
   const [ano, setAno] = useState<number>(anoPadrao)
+  const [base, setBase] = useState<BaseCalculo>('final')
 
   // Cada aba é endereçável, então um link pode apontar direto para a metodologia.
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function App() {
             <span className="mx-1 font-normal text-white/45">·</span>
             C.Vale
           </p>
-          <p className="mt-1 font-mono text-[11px] text-white/55">Proteína e grãos · 2020–2025</p>
+          <p className="mt-1 font-mono text-[11px] text-white/55">Proteína e grãos · 2021–2025</p>
         </div>
 
         <nav aria-label="Seções do painel" className="flex-1 px-3">
@@ -110,8 +111,8 @@ export default function App() {
       {/* ---------------------------------------------------------------- */}
       <div className="lg:pl-60">
         <main id="conteudo" className="mx-auto max-w-6xl px-5 pb-28 pt-8 sm:px-8 sm:pt-12 lg:pb-20">
-          {aba === 'panorama' && <Panorama ano={ano} setAno={setAno} />}
-          {aba === 'indicadores' && <Tabelas />}
+          {aba === 'panorama' && <Panorama ano={ano} setAno={setAno} base={base} setBase={setBase} />}
+          {aba === 'indicadores' && <Tabelas base={base} setBase={setBase} />}
           {aba === 'fontes' && <Fontes />}
           {aba === 'metodologia' && <Metodologia />}
 

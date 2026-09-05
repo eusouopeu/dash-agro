@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { ChevronUpIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { empresas, todosAnos, indicadorOpcional, type Empresa } from '../data'
+import { empresas, todosAnos, indicadorOpcional, comBaseCalculo, type Empresa, type BaseCalculo } from '../data'
 import { ROWS, formatDelta, type IndicatorRow } from '../format'
-import { Card, TituloSecao, Sparkline } from '../components/ui'
+import { Card, TituloSecao, Sparkline, InfoPopover, SeletorBaseCalculo } from '../components/ui'
 
 /** 'indicador' ou o id de uma empresa. */
 type ColunaKey = string
@@ -24,7 +24,7 @@ const COLUNAS: { key: ColunaKey; rotulo: string; alinha: 'left' | 'right' }[] = 
   ...empresas.map((e) => ({ key: e.id, rotulo: e.nomeCurto, alinha: 'right' as const })),
 ]
 
-function TabelaAno({ ano }: { ano: number }) {
+function TabelaAno({ ano, base }: { ano: number; base: BaseCalculo }) {
   const [coluna, setColuna] = useState<ColunaKey>('indicador')
   const [direcao, setDirecao] = useState<Direcao>('asc')
 
@@ -33,8 +33,10 @@ function TabelaAno({ ano }: { ano: number }) {
   const linhas: Linha[] = ROWS.map((row) => ({
     row,
     celulas: empresas.map((empresa) => {
-      const atual = indicadorOpcional(empresa, ano)
-      const anterior = indicadorOpcional(empresa, ano - 1)
+      const bruto = indicadorOpcional(empresa, ano)
+      const brutoAnterior = indicadorOpcional(empresa, ano - 1)
+      const atual = bruto ? comBaseCalculo(bruto, base) : null
+      const anterior = brutoAnterior ? comBaseCalculo(brutoAnterior, base) : null
       const valor = atual ? (atual[row.key] as number) : null
       return {
         empresa,
@@ -119,7 +121,10 @@ function TabelaAno({ ano }: { ano: number }) {
                 <th scope="row" className="px-4 py-3 text-left font-normal">
                   <span className="flex items-center gap-2.5">
                     <l.row.icon className="h-4 w-4 shrink-0 text-cinza" aria-hidden="true" />
-                    <span className="font-medium text-tinta">{l.row.label}</span>
+                    <span className="flex items-center gap-1.5 font-medium text-tinta">
+                      {l.row.label}
+                      <InfoPopover titulo={l.row.label} formula={l.row.formula} explicacao={l.row.explicacao} />
+                    </span>
                   </span>
                 </th>
 
@@ -151,13 +156,16 @@ function TabelaAno({ ano }: { ano: number }) {
   )
 }
 
-export function Tabelas() {
+export function Tabelas({ base, setBase }: { base: BaseCalculo; setBase: (b: BaseCalculo) => void }) {
   return (
     <div className="space-y-10">
-      <TituloSecao
-        titulo="Indicadores por exercício"
-        descricao="Uma tabela por ano, com o valor de cada indicador e a variação contra o exercício anterior. Clique no título de qualquer coluna para ordenar em ordem crescente, e de novo para decrescente."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-6">
+        <TituloSecao
+          titulo="Indicadores por exercício"
+          descricao="Uma tabela por ano, com o valor de cada indicador e a variação contra o exercício anterior. Clique no título de qualquer coluna para ordenar em ordem crescente, e de novo para decrescente."
+        />
+        <SeletorBaseCalculo valor={base} onChange={setBase} />
+      </div>
 
       <p className="-mt-4 rounded-md border border-linha bg-carta px-4 py-3 text-xs leading-relaxed text-cinza">
         <strong className="font-semibold text-tinta">Sobre ordenar pelas colunas das empresas:</strong> a ordenação é
@@ -166,8 +174,15 @@ export function Tabelas() {
         desempenho.
       </p>
 
+      <p className="-mt-4 rounded-md border border-linha bg-carta px-4 py-3 text-xs leading-relaxed text-cinza">
+        <strong className="font-semibold text-tinta">Sobre a base de cálculo:</strong> "saldo final" usa o saldo de
+        estoques, contas a receber e fornecedores no fim do próprio exercício; "saldo médio" usa a média com o saldo
+        do exercício anterior, convenção mais comum para indicadores de prazo. No primeiro exercício de cada empresa
+        não há saldo anterior na base, então a tabela mantém o saldo final mesmo com "saldo médio" selecionado.
+      </p>
+
       {todosAnos.map((ano) => (
-        <TabelaAno key={ano} ano={ano} />
+        <TabelaAno key={ano} ano={ano} base={base} />
       ))}
     </div>
   )

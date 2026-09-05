@@ -1,6 +1,6 @@
 import type { AnnualIndicators, Empresa } from '../data'
 import type { GrupoPainel, MetricaPainel } from '../painel'
-import { Card } from './ui'
+import { Card, InfoPopover } from './ui'
 
 // Comparativo por barras horizontais, um bloco por métrica.
 //
@@ -35,18 +35,22 @@ function Barra({
   const pct = (v: number) => ((v - min) / span) * 100
   const zero = pct(0)
 
-  const melhorValor = presentes.length
-    ? metrica.menorMelhor
-      ? Math.min(...presentes.map((x) => x.v))
-      : Math.max(...presentes.map((x) => x.v))
-    : null
+  const melhorValor =
+    presentes.length && !metrica.semJulgamento
+      ? metrica.menorMelhor
+        ? Math.min(...presentes.map((x) => x.v))
+        : Math.max(...presentes.map((x) => x.v))
+      : null
 
   return (
     <div className="border-b border-linha py-4 last:border-0">
       <div className="mb-3 flex items-baseline justify-between gap-4">
-        <h4 className="text-[13px] font-bold leading-snug tracking-tight text-tinta">{metrica.label}</h4>
+        <h4 className="flex items-center gap-1.5 text-[13px] font-bold leading-snug tracking-tight text-tinta">
+          {metrica.label}
+          <InfoPopover titulo={metrica.label} formula={metrica.formula} explicacao={metrica.explicacao} />
+        </h4>
         <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-cinza">
-          {metrica.menorMelhor ? 'menor é melhor' : 'maior é melhor'}
+          {metrica.semJulgamento ? 'sem direção normativa' : metrica.menorMelhor ? 'menor é melhor' : 'maior é melhor'}
         </span>
       </div>
 

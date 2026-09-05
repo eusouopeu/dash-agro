@@ -4,7 +4,9 @@
 // 1) BRF S.A. (B3: BRFS3) — demonstrações CONSOLIDADAS, extraídas dos CSVs
 //    estruturados da CVM Dados Abertos (DFP — Demonstrações Financeiras
 //    Padronizadas): https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/
-//    CD_CVM 016292. Anos disponíveis: 2020-2024.
+//    CD_CVM 016292. Anos disponíveis: 2021-2025. O exercício de 2025 é o
+//    primeiro após a fusão societária com a Marfrig (BRF segue arquivando
+//    DFP consolidada própria, CD_CVM 016292, como companhia aberta distinta).
 //
 // 2) Copacol - Cooperativa Agroindustrial Consolata — demonstrações
 //    CONSOLIDADAS, auditadas (KPMG Auditores Independentes para o exercício
@@ -15,10 +17,11 @@
 //
 // Valores em R$ mil, exatamente como reportado (sem arredondamento).
 //
-// Ano-base comum às duas empresas para a comparação principal: 2021-2024.
-// BRF também tem 2020 (sem par na Copacol) e Copacol também tem 2025 (sem
-// par na BRF) — mantidos nos dados brutos de cada empresa para as
-// sparklines/séries históricas, mas fora da tabela comparativa lado a lado.
+// Faixa de anos usada na análise: 2021-2025. Dentro dela, cada empresa
+// mantém sua série própria — BRF e Copacol 2021-2025, C.Vale só a partir de
+// 2022 (sem demonstração anterior nesta base) — usada nas sparklines e nos
+// gráficos de evolução. O painel comparativo lado a lado (panorama) usa a
+// interseção dos três: 2022-2025.
 
 export interface AnnualFinancials {
   ano: number
@@ -62,18 +65,21 @@ const SEM_OPERACIONAL = {
 
 // ---------------------------------------------------------------------------
 // BRF S.A. (B3: BRFS3) — Consolidado
-// Fonte: dfp_cia_aberta_{2020..2025}.zip, CVM Dados Abertos
+// Fonte: dfp_cia_aberta_{2021..2025}.zip, CVM Dados Abertos
 // (https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/), CD_CVM 016292.
-// Valor "como originalmente arquivado" (ORDEM_EXERC = ÚLTIMO no ano do
-// próprio exercício), não o comparativo republicado no ano seguinte — ver
+// O sufixo do arquivo é o próprio ano do exercício (DT_REFER), não o ano de
+// arquivamento — ex.: o exercício de 2025 (arquivado em 18/03/2026) está em
+// dfp_cia_aberta_2025.zip, não em dfp_cia_aberta_2026.zip. Valor "como
+// originalmente arquivado" (ORDEM_EXERC = ÚLTIMO no arquivo do próprio
+// exercício), não o comparativo republicado no arquivo do ano seguinte — ver
 // ressalvas em `fontes.brf.ressalvas`.
 // ---------------------------------------------------------------------------
 export const brfBruto: AnnualFinancials[] = [
-  { ano: 2020, receitaLiquida: 39_469_700, cmv: 29_998_822, estoques: 6_802_759, contasAReceber: 4_092_855, fornecedores: 10_832_005, ativoTotal: 49_664_906, patrimonioLiquido: 8_813_534, dividaLiquida: 14_827_801, ebitda: 5_241_171, ebit: 2_846_793, fluxoCaixaOperacional: 4_417_630, aliquotaEfetiva: -0.2111, ...SEM_OPERACIONAL },
   { ano: 2021, receitaLiquida: 48_343_305, cmv: 38_177_609, estoques: 9_654_870, contasAReceber: 4_039_155, fornecedores: 14_411_927, ativoTotal: 55_903_387, patrimonioLiquido: 8_825_623, dividaLiquida: 17_927_210, ebitda: 5_756_141, ebit: 3_009_787, fluxoCaixaOperacional: 3_923_636, aliquotaEfetiva: 0.01587, ...SEM_OPERACIONAL },
   { ano: 2022, receitaLiquida: 53_805_028, cmv: 45_672_376, estoques: 8_660_891, contasAReceber: 4_187_756, fornecedores: 14_805_629, ativoTotal: 57_854_447, patrimonioLiquido: 11_822_869, dividaLiquida: 15_386_071, ebitda: 2_855_416, ebit: -136_289, fluxoCaixaOperacional: 1_876_384, aliquotaEfetiva: -0.1018, ...SEM_OPERACIONAL },
   { ano: 2023, receitaLiquida: 53_615_440, cmv: 44_781_739, estoques: 6_628_890, contasAReceber: 4_766_071, fornecedores: 13_536_332, ativoTotal: 57_272_090, patrimonioLiquido: 15_643_656, dividaLiquida: 10_830_884, ebitda: 4_060_923, ebit: 836_141, fluxoCaixaOperacional: 3_939_397, aliquotaEfetiva: 0.0584, ...SEM_OPERACIONAL },
   { ano: 2024, receitaLiquida: 61_379_038, cmv: 45_543_222, estoques: 6_728_002, contasAReceber: 6_075_013, fornecedores: 14_573_097, ativoTotal: 62_675_076, patrimonioLiquido: 16_499_204, dividaLiquida: 9_575_184, ebitda: 10_364_890, ebit: 6_840_386, fluxoCaixaOperacional: 10_776_742, aliquotaEfetiva: 0.2689, ...SEM_OPERACIONAL },
+  { ano: 2025, receitaLiquida: 65_048_731, cmv: 48_642_936, estoques: 7_496_185, contasAReceber: 4_239_709, fornecedores: 14_567_758, ativoTotal: 68_259_376, patrimonioLiquido: 15_030_148, dividaLiquida: 14_534_904, ebitda: 10_209_501, ebit: 6_645_756, fluxoCaixaOperacional: 10_521_776, aliquotaEfetiva: 0.198464, ...SEM_OPERACIONAL },
 ]
 
 // ---------------------------------------------------------------------------
@@ -123,18 +129,30 @@ export const cvaleBruto: AnnualFinancials[] = [
 ]
 
 export interface AnnualIndicators extends AnnualFinancials {
-  giroEstoque: number // CMV / Estoques
-  pmeDias: number // Estoques / CMV × 365
-  pmrDias: number // Contas a Receber / Receita Líquida × 365
-  pmpDias: number // Fornecedores / CMV × 365
-  cicloFinanceiroDias: number // PME + PMR − PMP
+  giroEstoque: number // CMV / Estoques (saldo final)
+  pmeDias: number // Estoques / CMV × 365 (saldo final)
+  pmrDias: number // Contas a Receber / Receita Líquida × 365 (saldo final)
+  pmpDias: number // Fornecedores / CMV × 365 (saldo final)
+  cicloFinanceiroDias: number // PME + PMR − PMP (saldo final)
   ncg: number // (Contas a Receber + Estoques) − Fornecedores
+  ncgSobreReceita: number // NCG / Receita Líquida (fração)
   giroAtivo: number // Receita Líquida / Ativo Total
   margemOperacional: number // EBIT / Receita Líquida (fração)
   margemEbitda: number // EBITDA / Receita Líquida (fração)
   roic: number // EBIT × (1 − alíquota efetiva) / (Dívida Líquida + Patrimônio Líquido) (fração)
   alavancagem: number // Dívida Líquida / EBITDA (x)
   endividamento: number // (Ativo Total − Patrimônio Líquido) / Ativo Total — quanto do ativo é financiado por terceiros (fração)
+  conversaoCaixa: number // Fluxo de Caixa Operacional / EBITDA (x)
+
+  // Variante "saldo médio" de PME/PMR/PMP/Giro/Ciclo — média entre o saldo do
+  // exercício e o do exercício anterior, em vez do saldo final isolado.
+  // `null` no primeiro ano de cada empresa, por falta de saldo anterior na
+  // base (nunca estimado).
+  pmeDiasMedio: number | null
+  pmrDiasMedio: number | null
+  pmpDiasMedio: number | null
+  cicloFinanceiroDiasMedio: number | null
+  giroEstoqueMedio: number | null
 
   // Derivados dos campos de cobertura parcial — `null` onde falta a base.
   capexSobreReceita: number | null // CAPEX / Receita Líquida (fração)
@@ -143,11 +161,28 @@ export interface AnnualIndicators extends AnnualFinancials {
   utilizacaoCapacidade: number | null // Volume recebido / capacidade estática de armazenagem (x)
 }
 
-function computarIndicadores(d: AnnualFinancials): AnnualIndicators {
+/** 'final' usa o saldo do fim do exercício; 'medio' usa a média com o saldo do exercício anterior. */
+export type BaseCalculo = 'final' | 'medio'
+
+function computarIndicadores(d: AnnualFinancials, anterior: AnnualFinancials | null): AnnualIndicators {
   const pmeDias = (d.estoques / d.cmv) * 365
   const pmrDias = (d.contasAReceber / d.receitaLiquida) * 365
   const pmpDias = (d.fornecedores / d.cmv) * 365
   const ncg = d.contasAReceber + d.estoques - d.fornecedores
+
+  const estoqueMedio = anterior ? (d.estoques + anterior.estoques) / 2 : null
+  const receberMedio = anterior ? (d.contasAReceber + anterior.contasAReceber) / 2 : null
+  const fornecedoresMedio = anterior ? (d.fornecedores + anterior.fornecedores) / 2 : null
+
+  const pmeDiasMedio = estoqueMedio === null ? null : (estoqueMedio / d.cmv) * 365
+  const pmrDiasMedio = receberMedio === null ? null : (receberMedio / d.receitaLiquida) * 365
+  const pmpDiasMedio = fornecedoresMedio === null ? null : (fornecedoresMedio / d.cmv) * 365
+  const giroEstoqueMedio = estoqueMedio === null ? null : d.cmv / estoqueMedio
+  const cicloFinanceiroDiasMedio =
+    pmeDiasMedio === null || pmrDiasMedio === null || pmpDiasMedio === null
+      ? null
+      : pmeDiasMedio + pmrDiasMedio - pmpDiasMedio
+
   return {
     ...d,
     giroEstoque: d.cmv / d.estoques,
@@ -155,13 +190,20 @@ function computarIndicadores(d: AnnualFinancials): AnnualIndicators {
     pmrDias,
     pmpDias,
     cicloFinanceiroDias: pmeDias + pmrDias - pmpDias,
+    pmeDiasMedio,
+    pmrDiasMedio,
+    pmpDiasMedio,
+    cicloFinanceiroDiasMedio,
+    giroEstoqueMedio,
     ncg,
+    ncgSobreReceita: ncg / d.receitaLiquida,
     giroAtivo: d.receitaLiquida / d.ativoTotal,
     margemOperacional: d.ebit / d.receitaLiquida,
     margemEbitda: d.ebitda / d.receitaLiquida,
     roic: (d.ebit * (1 - d.aliquotaEfetiva)) / (d.dividaLiquida + d.patrimonioLiquido),
     alavancagem: d.dividaLiquida / d.ebitda,
     endividamento: (d.ativoTotal - d.patrimonioLiquido) / d.ativoTotal,
+    conversaoCaixa: d.fluxoCaixaOperacional / d.ebitda,
     capexSobreReceita: d.capex === null ? null : d.capex / d.receitaLiquida,
     capexSobreDepreciacao:
       d.capex === null || d.depreciacaoAmortizacao === null ? null : d.capex / d.depreciacaoAmortizacao,
@@ -170,6 +212,32 @@ function computarIndicadores(d: AnnualFinancials): AnnualIndicators {
       d.volumeToneladas === null || d.capacidadeArmazenagemToneladas === null
         ? null
         : d.volumeToneladas / d.capacidadeArmazenagemToneladas,
+  }
+}
+
+/**
+ * Substitui PME/PMR/PMP/Giro do Estoque/Ciclo Financeiro pela variante em
+ * saldo médio, quando disponível. Sem ano anterior (primeiro exercício de
+ * cada empresa), mantém o saldo final — a única base que a série permite.
+ */
+export function comBaseCalculo(i: AnnualIndicators, base: BaseCalculo): AnnualIndicators {
+  if (base === 'final') return i
+  if (
+    i.pmeDiasMedio === null ||
+    i.pmrDiasMedio === null ||
+    i.pmpDiasMedio === null ||
+    i.cicloFinanceiroDiasMedio === null ||
+    i.giroEstoqueMedio === null
+  ) {
+    return i
+  }
+  return {
+    ...i,
+    pmeDias: i.pmeDiasMedio,
+    pmrDias: i.pmrDiasMedio,
+    pmpDias: i.pmpDiasMedio,
+    cicloFinanceiroDias: i.cicloFinanceiroDiasMedio,
+    giroEstoque: i.giroEstoqueMedio,
   }
 }
 
@@ -194,7 +262,7 @@ export const brf: Empresa = {
   cor: '#008DA0', // passo de dado da família verde petróleo
   corSuave: '#E2F0F2',
   bruto: brfBruto,
-  indicadores: brfBruto.map(computarIndicadores),
+  indicadores: brfBruto.map((d, idx) => computarIndicadores(d, idx > 0 ? brfBruto[idx - 1] : null)),
 }
 
 export const copacol: Empresa = {
@@ -205,7 +273,7 @@ export const copacol: Empresa = {
   cor: '#D45A1E', // passo de dado da família laranja queimado
   corSuave: '#FBEADF',
   bruto: copacolBruto,
-  indicadores: copacolBruto.map(computarIndicadores),
+  indicadores: copacolBruto.map((d, idx) => computarIndicadores(d, idx > 0 ? copacolBruto[idx - 1] : null)),
 }
 
 export const cvale: Empresa = {
@@ -216,16 +284,21 @@ export const cvale: Empresa = {
   cor: '#7A4FA3', // violeta — terceiro passo validado da paleta
   corSuave: '#EDE6F3',
   bruto: cvaleBruto,
-  indicadores: cvaleBruto.map(computarIndicadores),
+  indicadores: cvaleBruto.map((d, idx) => computarIndicadores(d, idx > 0 ? cvaleBruto[idx - 1] : null)),
 }
 
 export const empresas: Empresa[] = [brf, copacol, cvale]
 
 // Anos em que AS TRÊS empresas têm dado real — base do seletor do panorama.
-// Fora dessa faixa cada empresa mantém sua série própria (BRF 2020-2024,
-// Copacol 2021-2025, C.Vale 2022-2025), usada nas sparklines e nos gráficos
-// de evolução e mostrada nas tabelas por exercício.
-export const anosComuns = [2022, 2023, 2024] as const
+// Calculado por interseção (não fixado à mão) para não desatualizar quando um
+// novo exercício entra na base de alguma empresa. Fora dessa faixa cada
+// empresa mantém sua série própria (BRF e Copacol 2021-2025, C.Vale
+// 2022-2025 — sem demonstração anterior nesta base), usada nas sparklines e
+// nos gráficos de evolução e mostrada nas tabelas por exercício.
+export const anosComuns: number[] = brfBruto
+  .map((d) => d.ano)
+  .filter((ano) => copacolBruto.some((d) => d.ano === ano) && cvaleBruto.some((d) => d.ano === ano))
+  .sort((a, b) => a - b)
 
 /** Todos os anos com dado para pelo menos uma das empresas, do mais recente ao mais antigo. */
 export const todosAnos: number[] = Array.from(
@@ -253,12 +326,13 @@ export const fontes = {
     empresa: 'BRF S.A. (B3: BRFS3), CNPJ 01.838.723/0001-27, CD_CVM 016292',
     origem: 'CVM — Dados Abertos, Demonstrações Financeiras Padronizadas (DFP), demonstrações CONSOLIDADAS',
     url: 'https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/',
-    base: 'DFP consolidada de cada exercício (arquivo dfp_cia_aberta_{ano+1}.zip, ORDEM_EXERC = ÚLTIMO) — contas BPA 1.01.03.01/1.01.04/1, BPP 2.01.02/2.03/2.01.04/2.02.01, DRE 3.01/3.02/3.05/3.07/3.08, DFC_MI 6.01',
+    base: 'DFP consolidada de cada exercício (arquivo dfp_cia_aberta_{ano}.zip, ORDEM_EXERC = ÚLTIMO — o sufixo do arquivo é o ano do próprio exercício, não o ano de arquivamento) — contas BPA 1.01.03.01/1.01.04/1, BPP 2.01.02/2.03/2.01.04/2.02.01, DRE 3.01/3.02/3.05/3.07/3.08, DFC_MI 6.01',
     ressalvas: [
       'EBITDA e alíquota efetiva de IR/CSLL não são linhas formais do DFP nem valores divulgados pela própria BRF nesse formato — foram derivados (EBITDA = EBIT + Depreciação/Amortização do DFC; alíquota = (IR+CSLL)/Resultado Antes dos Tributos).',
       'Dívida Líquida não é uma linha do DFP — derivada como Dívida Bruta (empréstimos, financiamentos e debêntures, circulante + não circulante) − Caixa e Equivalentes − Aplicações Financeiras de curto prazo.',
-      'Há divergência entre o valor "como originalmente arquivado" e o comparativo republicado no ano seguinte em: CMV e Fluxo de Caixa Operacional de 2020, e Fornecedores/Dívida Bruta de 2024 (possivelmente ligada a reclassificações da fusão BRF–Marfrig). Os dados aqui usam sempre o valor "como originalmente arquivado".',
+      'Há divergência entre o valor "como originalmente arquivado" e o comparativo republicado no ano seguinte em: Fornecedores/Dívida Bruta de 2024 (possivelmente ligada a reclassificações da fusão BRF–Marfrig). Os dados aqui usam sempre o valor "como originalmente arquivado".',
       'Patrimônio Líquido inclui participação de acionistas não controladores (minoritários).',
+      'O exercício de 2025 é o primeiro após a fusão societária entre BRF e Marfrig (associação que deu origem à MBRF Global Foods). BRF S.A. segue arquivando DFP consolidada própria na CVM sob o mesmo CD_CVM 016292 — os dados de 2025 usados aqui são dessa demonstração individual da BRF, não do grupo combinado.',
     ],
   },
   copacol: {
@@ -283,15 +357,17 @@ export const fontes = {
     ],
   },
   formulas: [
-    'Giro do Estoque = CMV / Estoques (saldo final do exercício)',
-    'PME (Prazo Médio de Estocagem) = Estoques / CMV × 365',
-    'PMR (Prazo Médio de Recebimento) = Contas a Receber / Receita Líquida × 365',
-    'PMP (Prazo Médio de Pagamento) = Fornecedores / CMV × 365',
+    'Giro do Estoque = CMV / Estoques (saldo final do exercício, ou saldo médio com o exercício anterior — ver seletor de base de cálculo)',
+    'PME (Prazo Médio de Estocagem) = Estoques / CMV × 365 (saldo final ou médio)',
+    'PMR (Prazo Médio de Recebimento) = Contas a Receber / Receita Líquida × 365 (saldo final ou médio)',
+    'PMP (Prazo Médio de Pagamento) = Fornecedores / CMV × 365 (saldo final ou médio)',
     'Ciclo Financeiro (Ciclo de Caixa Operacional) = PME + PMR − PMP',
     'NCG (Necessidade de Capital de Giro) = (Contas a Receber + Estoques) − Fornecedores',
+    'NCG sobre Receita = NCG / Receita Líquida',
     'Giro do Ativo = Receita Líquida / Ativo Total',
     'Margem EBITDA = EBITDA / Receita Líquida',
     'ROIC = EBIT × (1 − alíquota efetiva de IR/CSLL do exercício) / (Dívida Líquida + Patrimônio Líquido)',
     'Indicador de Alavancagem = Dívida Líquida / EBITDA',
+    'Conversão de Caixa = Fluxo de Caixa Operacional / EBITDA',
   ],
 }

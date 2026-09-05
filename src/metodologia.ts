@@ -20,7 +20,8 @@ export interface Formula {
   unidade: string
   /** O que o número quer dizer, em uma frase. */
   leitura: string
-  melhor: 'maior' | 'menor'
+  /** 'neutro' = sem direção normativa única entre as três empresas (ver leitura). */
+  melhor: 'maior' | 'menor' | 'neutro'
 }
 
 export const formulas: Formula[] = [
@@ -63,8 +64,8 @@ export const formulas: Formula[] = [
     denominador: 'CMV',
     fator: '× 365',
     unidade: 'dias',
-    leitura: 'Quantos dias a empresa leva para pagar seus fornecedores. Prazo maior financia o giro.',
-    melhor: 'maior',
+    leitura: 'Quantos dias a empresa leva para pagar seus fornecedores. Numa companhia aberta, prazo maior financia o giro; numa cooperativa, o "fornecedor" é em boa parte o próprio associado, e demorar mais para pagá-lo não é um resultado a comemorar — por isso este painel não rotula o PMP como "melhor" em nenhuma direção.',
+    melhor: 'neutro',
   },
   {
     key: 'cicloFinanceiroDias',
@@ -84,6 +85,24 @@ export const formulas: Formula[] = [
     unidade: 'R$',
     leitura: 'Quanto de caixa próprio a operação exige para funcionar, fora o financiamento de fornecedores.',
     melhor: 'menor',
+  },
+  {
+    key: 'ncgSobreReceita',
+    nome: 'NCG sobre Receita',
+    numerador: 'NCG',
+    denominador: 'Receita Líquida',
+    unidade: '%',
+    leitura: 'A NCG em relação ao tamanho da operação — permite comparar empresas de porte diferente. Negativa significa que o fornecedor financia o giro, não o caixa próprio.',
+    melhor: 'menor',
+  },
+  {
+    key: 'conversaoCaixa',
+    nome: 'Conversão de Caixa',
+    numerador: 'Fluxo de Caixa Operacional',
+    denominador: 'EBITDA',
+    unidade: 'vezes (x)',
+    leitura: 'Quanto do EBITDA de fato virou caixa no ano. Bem abaixo de 1,0x é sinal de lucro que não se converteu em dinheiro — por variação de capital de giro, por exemplo.',
+    melhor: 'maior',
   },
   {
     key: 'giroAtivo',
@@ -196,10 +215,10 @@ export const premissas: BlocoPremissas[] = [
     base: 'Válidas para as duas empresas, para manter a comparação legítima.',
     itens: [
       'Todos os valores são consolidados e vêm de demonstrações auditadas, em R$ mil, exatamente como reportado — sem arredondamento ou reexpressão por inflação.',
-      'Os prazos médios usam o saldo final do exercício, não a média entre abertura e fechamento. A convenção é a mesma nas duas empresas.',
-      'Contas a Receber e Fornecedores usam apenas o saldo circulante, nas duas empresas.',
+      'Os prazos médios (PME, PMR, PMP, Ciclo Financeiro e Giro do Estoque) podem usar o saldo final do exercício ou a média com o saldo do exercício anterior — um seletor de "base de cálculo" alterna entre as duas convenções no panorama e na tabela de indicadores. No primeiro exercício de cada empresa, sem saldo anterior na base, mantém-se o saldo final.',
+      'Contas a Receber e Fornecedores usam apenas o saldo circulante, nas três empresas.',
       'O ano comercial é de 365 dias, sem ajuste para anos bissextos.',
-      'O panorama compara 2022–2024, os únicos exercícios com dado real para as três empresas. Cada uma mantém sua série completa nas tabelas e nos gráficos de evolução: BRF 2020–2024, Copacol 2021–2025, C.Vale 2022–2025.',
+      'O panorama compara 2022–2025, os únicos exercícios com dado real para as três empresas. Cada uma mantém sua série completa nas tabelas e nos gráficos de evolução: BRF e Copacol 2021–2025, C.Vale 2022–2025 (sem demonstração anterior nesta base).',
     ],
   },
   {
@@ -210,7 +229,8 @@ export const premissas: BlocoPremissas[] = [
       'A alíquota efetiva de IR/CSLL também é derivada: (IR + CSLL) ÷ Resultado Antes dos Tributos do próprio exercício.',
       'Dívida Líquida é derivada: Dívida Bruta (empréstimos, financiamentos e debêntures, circulante + não circulante) − Caixa e Equivalentes − Aplicações Financeiras de curto prazo.',
       'O Patrimônio Líquido inclui a participação de acionistas não controladores.',
-      'Há divergência entre o valor como originalmente arquivado e o comparativo republicado no ano seguinte em: CMV e Fluxo de Caixa Operacional de 2020, e Fornecedores e Dívida Bruta de 2024 — possivelmente ligada a reclassificações da fusão BRF–Marfrig. Este painel usa sempre o valor como originalmente arquivado.',
+      'Há divergência entre o valor como originalmente arquivado e o comparativo republicado no ano seguinte em: Fornecedores e Dívida Bruta de 2024 — possivelmente ligada a reclassificações da fusão BRF–Marfrig. Este painel usa sempre o valor como originalmente arquivado.',
+      'O exercício de 2025 é o primeiro após a fusão societária entre BRF e Marfrig. A BRF S.A. segue arquivando DFP consolidada própria na CVM (CD_CVM 016292); os dados de 2025 usados aqui são dessa demonstração individual, não do grupo combinado.',
     ],
   },
   {
@@ -234,7 +254,7 @@ export const premissas: BlocoPremissas[] = [
       'EBITDA derivado como EBIT + Depreciação do imobilizado + Amortização de intangível e biológico, ambas da Demonstração dos Fluxos de Caixa. A C.Vale não separa a depreciação de direito de uso (IFRS 16), que fica embutida na depreciação do imobilizado.',
       'Dívida Líquida derivada como Empréstimos e Financiamentos (circulante + não circulante) − Caixa e Equivalentes − Aplicações Financeiras.',
       'CAPEX é a soma de "Aquisição de ativo imobilizado" e "Aquisição de ativo intangível" nas atividades de investimento da DFC. Hoje só a C.Vale tem esse dado extraído.',
-      'Os dados operacionais (13.668 funcionários, 4.195.769 t recebidas e 2.938.322 t de capacidade estática) vêm do Relatório Anual 2022 e existem apenas para esse exercício, porque os relatórios anuais de 2023 a 2025 não estão nesta base.',
+      'Os dados operacionais (funcionários, produção total recebida e capacidade estática de armazenagem) vêm dos Relatórios Anuais de 2022 a 2025 e cobrem toda a série da C.Vale nesta base.',
     ],
   },
 ]

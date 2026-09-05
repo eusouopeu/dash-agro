@@ -5,9 +5,14 @@ Comparativo de eficiência operacional, ciclo financeiro e rentabilidade entre
 a **C.Vale — Cooperativa Agroindustrial**, a partir de demonstrações financeiras
 auditadas.
 
-Anos com dado real para as três empresas: **2022–2024**. Cada empresa mantém sua
-série completa nas tabelas e nos gráficos de evolução: BRF 2020–2024, Copacol
-2021–2025, C.Vale 2022–2025.
+Anos com dado real para as três empresas: **2022–2025**. Cada empresa mantém sua
+série completa nas tabelas e nos gráficos de evolução: BRF e Copacol 2021–2025,
+C.Vale 2022–2025 (sem demonstração anterior nesta base).
+
+Os prazos médios (PME, PMR, PMP, Ciclo Financeiro e Giro do Estoque) podem ser
+calculados sobre o saldo final do exercício ou sobre a média com o saldo do
+exercício anterior — um seletor "Base de cálculo" alterna entre as duas
+convenções no panorama e na tabela de indicadores.
 
 ## Seções
 
@@ -25,13 +30,21 @@ inferior só com ícones. Cada aba tem URL própria (`#panorama`, `#indicadores`
 ## Indicadores
 
 **Cobertura completa** — Giro do Estoque · PME · PMR · PMP · Ciclo Financeiro ·
-NCG · Giro do Ativo · Margem Operacional · Margem EBITDA · ROIC · Índice de
-Endividamento · Alavancagem (Dív. Líq./EBITDA).
+NCG · NCG sobre Receita · Conversão de Caixa (FCO/EBITDA) · Giro do Ativo ·
+Margem Operacional · Margem EBITDA · ROIC · Índice de Endividamento ·
+Alavancagem (Dív. Líq./EBITDA).
 
 **Cobertura parcial** — CAPEX/Receita e CAPEX/Depreciação (só C.Vale); Volume
 recebido, Receita por Funcionário e Utilização da Capacidade de Armazenagem (só
-C.Vale, só 2022). Onde falta a base, o painel mostra "sem dado" e diz o que
+C.Vale, 2022–2025). Onde falta a base, o painel mostra "sem dado" e diz o que
 precisa ser extraído. Nada é estimado.
+
+Cada indicador tem um botão "?" ao lado do nome, com a fórmula exata e uma
+frase no formato "quanto maior/menor o indicador, ..." explicando o sentido —
+tanto no panorama quanto na tabela de indicadores. O PMP é marcado como "sem
+direção normativa": numa companhia aberta um prazo maior costuma liberar caixa,
+mas numa cooperativa o "fornecedor" é em boa parte o próprio associado, e
+demorar mais para pagá-lo não é um resultado a comemorar.
 
 As definições exatas estão em `src/metodologia.ts` e aparecem renderizadas na
 aba Metodologia.
@@ -42,8 +55,9 @@ aba Metodologia.
   https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/
 - **Copacol** — Relatórios financeiros anuais auditados, obtidos diretamente
   junto à cooperativa (não publicados de forma indexável).
-- **C.Vale** — Demonstrações consolidadas dos relatórios de 2023, 2024 e 2025,
-  mais o Relatório Anual 2022 para os dados operacionais.
+- **C.Vale** — Demonstrações consolidadas dos relatórios de 2023, 2024 e 2025
+  (2022 vem da coluna comparativa do relatório de 2023), mais os Relatórios
+  Anuais de 2022 a 2025 para os dados operacionais.
 
 Referências completas em `src/referencias.ts`.
 

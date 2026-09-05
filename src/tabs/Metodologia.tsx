@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/20/solid'
+import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from '@heroicons/react/20/solid'
 import { CalculatorIcon } from '@heroicons/react/24/outline'
 import { formulas, formulasParciais, premissas, limitacoes, type Formula } from '../metodologia'
 import { ROWS } from '../format'
@@ -46,12 +46,10 @@ function CartaoFormula({ f }: { f: Formula }) {
       <div className="mt-4 flex items-center gap-2 border-t border-linha pt-3">
         <span className="font-mono text-[10px] uppercase tracking-wider text-cinza">{f.unidade}</span>
         <span className="ml-auto inline-flex items-center gap-1 rounded-[3px] bg-papel px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-tinta">
-          {f.melhor === 'maior' ? (
-            <ArrowUpIcon className="h-3 w-3 text-petroleo" aria-hidden="true" />
-          ) : (
-            <ArrowDownIcon className="h-3 w-3 text-petroleo" aria-hidden="true" />
-          )}
-          {f.melhor} é melhor
+          {f.melhor === 'maior' && <ArrowUpIcon className="h-3 w-3 text-petroleo" aria-hidden="true" />}
+          {f.melhor === 'menor' && <ArrowDownIcon className="h-3 w-3 text-petroleo" aria-hidden="true" />}
+          {f.melhor === 'neutro' && <MinusIcon className="h-3 w-3 text-cinza" aria-hidden="true" />}
+          {f.melhor === 'neutro' ? 'sem direção normativa' : `${f.melhor} é melhor`}
         </span>
       </div>
     </Card>

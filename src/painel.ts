@@ -13,6 +13,17 @@ export interface MetricaPainel {
   valor: (i: AnnualIndicators) => number | null
   format: (v: number) => string
   menorMelhor: boolean
+  /** Fórmula em notação curta, mostrada no popover de ajuda. */
+  formula: string
+  /** Frase "quanto maior/menor o indicador, ..." mostrada no popover de ajuda. */
+  explicacao: string
+  /**
+   * Indicador sem direção normativa única entre as três empresas (ex.: PMP,
+   * onde "maior é melhor" vale para uma companhia aberta mas não para uma
+   * cooperativa pagando o próprio associado). Quando `true`, a interface não
+   * rotula "maior/menor é melhor" nem destaca um "melhor" valor.
+   */
+  semJulgamento?: boolean
   /** O que falta para completar o indicador nas empresas sem dado. */
   faltaDado?: string
 }
@@ -34,7 +45,7 @@ const FALTA_CAPEX =
   'Disponível só para a C.Vale. Para BRF e Copacol falta extrair a linha de aquisição de imobilizado e intangível das atividades de investimento da DFC.'
 
 const FALTA_OPERACIONAL =
-  'Disponível para a C.Vale em 2022-2024, dos Relatórios Anuais. BRF e Copacol dependem de relatórios operacionais que não estão nesta base (a Copacol só tem esse dado em 2025, fora da faixa comparável).'
+  'Disponível para a C.Vale em 2022-2025, dos Relatórios Anuais. BRF e Copacol dependem de relatórios operacionais que não estão nesta base (a Copacol só tem esse dado em 2025, fora da faixa comparável para BRF).'
 
 export const grupos: GrupoPainel[] = [
   {
@@ -42,13 +53,23 @@ export const grupos: GrupoPainel[] = [
     titulo: 'Eficiência Operacional',
     descricao: 'Quanta produção e quanta receita a estrutura instalada consegue gerar.',
     metricas: [
-      { key: 'giroAtivo', label: 'Giro do Ativo', valor: (i) => i.giroAtivo, format: formatX, menorMelhor: false },
+      {
+        key: 'giroAtivo',
+        label: 'Giro do Ativo',
+        valor: (i) => i.giroAtivo,
+        format: formatX,
+        menorMelhor: false,
+        formula: 'Receita Líquida ÷ Ativo Total',
+        explicacao: 'Quanto maior o giro do ativo, mais receita a empresa gera para cada real investido em ativos.',
+      },
       {
         key: 'volume',
         label: 'Volume produzido / recebido',
         valor: (i) => i.volumeToneladas,
         format: formatToneladas,
         menorMelhor: false,
+        formula: 'Volume físico recebido ou produzido no exercício (toneladas)',
+        explicacao: 'Quanto maior o volume, maior a escala física da operação no ano.',
         faltaDado: FALTA_OPERACIONAL,
       },
       {
@@ -57,6 +78,8 @@ export const grupos: GrupoPainel[] = [
         valor: (i) => i.receitaPorFuncionario,
         format: formatMilhoes,
         menorMelhor: false,
+        formula: 'Receita Líquida ÷ Número de funcionários',
+        explicacao: 'Quanto maior a receita por funcionário, mais receita cada colaborador gera, em média.',
         faltaDado: FALTA_OPERACIONAL,
       },
       {
@@ -65,6 +88,8 @@ export const grupos: GrupoPainel[] = [
         valor: (i) => i.utilizacaoCapacidade,
         format: formatX,
         menorMelhor: false,
+        formula: 'Volume recebido ÷ Capacidade estática de armazenagem',
+        explicacao: 'Quanto maior a utilização, mais perto do limite físico a capacidade de armazenagem está operando.',
         faltaDado: FALTA_OPERACIONAL,
       },
     ],
@@ -74,11 +99,52 @@ export const grupos: GrupoPainel[] = [
     titulo: 'Capital de Giro',
     descricao: 'Quantos dias de caixa a operação prende entre pagar o fornecedor e receber do cliente.',
     metricas: [
-      { key: 'cicloFinanceiroDias', label: 'Ciclo financeiro', valor: (i) => i.cicloFinanceiroDias, format: formatDias, menorMelhor: true },
-      { key: 'pmrDias', label: 'PMR — prazo médio de recebimento', valor: (i) => i.pmrDias, format: formatDias, menorMelhor: true },
-      { key: 'pmeDias', label: 'PME — prazo médio de estocagem', valor: (i) => i.pmeDias, format: formatDias, menorMelhor: true },
-      { key: 'pmpDias', label: 'PMP — prazo médio de pagamento', valor: (i) => i.pmpDias, format: formatDias, menorMelhor: false },
-      { key: 'giroEstoque', label: 'Giro do estoque', valor: (i) => i.giroEstoque, format: formatX, menorMelhor: false },
+      {
+        key: 'cicloFinanceiroDias',
+        label: 'Ciclo financeiro',
+        valor: (i) => i.cicloFinanceiroDias,
+        format: formatDias,
+        menorMelhor: true,
+        formula: 'PME + PMR − PMP',
+        explicacao: 'Quanto menor o ciclo financeiro, menos dias de caixa próprio a operação prende entre pagar o fornecedor e receber do cliente — negativo significa que o fornecedor financia o giro.',
+      },
+      {
+        key: 'pmrDias',
+        label: 'PMR — prazo médio de recebimento',
+        valor: (i) => i.pmrDias,
+        format: formatDias,
+        menorMelhor: true,
+        formula: '(Contas a Receber ÷ Receita Líquida) × 365',
+        explicacao: 'Quanto menor o PMR, mais rápido a empresa recebe dos clientes depois da venda.',
+      },
+      {
+        key: 'pmeDias',
+        label: 'PME — prazo médio de estocagem',
+        valor: (i) => i.pmeDias,
+        format: formatDias,
+        menorMelhor: true,
+        formula: '(Estoques ÷ CMV) × 365',
+        explicacao: 'Quanto menor o PME, menos tempo a mercadoria fica parada no estoque antes de ser vendida.',
+      },
+      {
+        key: 'pmpDias',
+        label: 'PMP — prazo médio de pagamento',
+        valor: (i) => i.pmpDias,
+        format: formatDias,
+        menorMelhor: false,
+        semJulgamento: true,
+        formula: '(Fornecedores ÷ CMV) × 365',
+        explicacao: 'Mede quantos dias a empresa demora para pagar seus fornecedores. Não há direção universalmente melhor aqui: numa companhia aberta, um PMP maior costuma liberar caixa; numa cooperativa, o "fornecedor" é em boa parte o próprio associado, e demorar mais para pagá-lo não é um resultado a comemorar.',
+      },
+      {
+        key: 'giroEstoque',
+        label: 'Giro do estoque',
+        valor: (i) => i.giroEstoque,
+        format: formatX,
+        menorMelhor: false,
+        formula: 'CMV ÷ Estoques',
+        explicacao: 'Quanto maior o giro do estoque, mais vezes por ano o estoque é vendido e reposto.',
+      },
     ],
   },
   {
@@ -86,9 +152,33 @@ export const grupos: GrupoPainel[] = [
     titulo: 'Rentabilidade',
     descricao: 'Quanto sobra da receita e quanto o capital investido rende.',
     metricas: [
-      { key: 'margemOperacional', label: 'Margem operacional', valor: (i) => i.margemOperacional, format: formatPct, menorMelhor: false },
-      { key: 'margemEbitda', label: 'Margem EBITDA', valor: (i) => i.margemEbitda, format: formatPct, menorMelhor: false },
-      { key: 'roic', label: 'ROIC', valor: (i) => i.roic, format: formatPct, menorMelhor: false },
+      {
+        key: 'margemOperacional',
+        label: 'Margem operacional',
+        valor: (i) => i.margemOperacional,
+        format: formatPct,
+        menorMelhor: false,
+        formula: 'EBIT ÷ Receita Líquida',
+        explicacao: 'Quanto maior a margem operacional, maior a parcela da receita que sobra depois dos custos e despesas operacionais.',
+      },
+      {
+        key: 'margemEbitda',
+        label: 'Margem EBITDA',
+        valor: (i) => i.margemEbitda,
+        format: formatPct,
+        menorMelhor: false,
+        formula: 'EBITDA ÷ Receita Líquida',
+        explicacao: 'Quanto maior a margem EBITDA, maior a geração de caixa operacional para cada real de receita, antes de juros, impostos, depreciação e amortização.',
+      },
+      {
+        key: 'roic',
+        label: 'ROIC',
+        valor: (i) => i.roic,
+        format: formatPct,
+        menorMelhor: false,
+        formula: 'EBIT × (1 − alíquota efetiva) ÷ (Dívida Líquida + Patrimônio Líquido)',
+        explicacao: 'Quanto maior o ROIC, maior o retorno gerado sobre o capital investido na operação.',
+      },
     ],
   },
   {
@@ -102,6 +192,8 @@ export const grupos: GrupoPainel[] = [
         valor: (i) => i.capexSobreReceita,
         format: formatPct,
         menorMelhor: false,
+        formula: 'CAPEX ÷ Receita Líquida',
+        explicacao: 'Quanto maior o CAPEX sobre receita, maior a fatia da receita reinvestida em ativo fixo no ano.',
         faltaDado: FALTA_CAPEX,
       },
       {
@@ -110,10 +202,28 @@ export const grupos: GrupoPainel[] = [
         valor: (i) => i.capexSobreDepreciacao,
         format: formatX,
         menorMelhor: false,
+        formula: 'CAPEX ÷ Depreciação e Amortização',
+        explicacao: 'Quanto maior o índice, mais a empresa investe além do necessário para repor o desgaste do ativo — acima de 1x indica expansão, não só manutenção.',
         faltaDado: FALTA_CAPEX,
       },
-      { key: 'endividamento', label: 'Índice de endividamento', valor: (i) => i.endividamento, format: formatPct, menorMelhor: true },
-      { key: 'alavancagem', label: 'Dívida líquida sobre EBITDA', valor: (i) => i.alavancagem, format: formatX, menorMelhor: true },
+      {
+        key: 'endividamento',
+        label: 'Índice de endividamento',
+        valor: (i) => i.endividamento,
+        format: formatPct,
+        menorMelhor: true,
+        formula: '(Ativo Total − Patrimônio Líquido) ÷ Ativo Total',
+        explicacao: 'Quanto menor o endividamento, menor a fatia do ativo total financiada por capital de terceiros.',
+      },
+      {
+        key: 'alavancagem',
+        label: 'Dívida líquida sobre EBITDA',
+        valor: (i) => i.alavancagem,
+        format: formatX,
+        menorMelhor: true,
+        formula: 'Dívida Líquida ÷ EBITDA',
+        explicacao: 'Quanto menor a alavancagem, menos anos de geração de caixa operacional seriam necessários para quitar a dívida líquida.',
+      },
     ],
   },
 ]
